@@ -1,22 +1,23 @@
 ﻿using Carter;
-using FluentValidation;
-using Serilog;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Threading.RateLimiting;
-using Microsoft.OpenApi.Models;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Metrics;
-using Catalog.Api.Middleware;
 using Catalog.Api.Common;
-using Catalog.Infrastructure.Repositories;
-using Catalog.Infrastructure.Data;
-using Catalog.Infrastructure.Cache;
+using Catalog.Api.Middleware;
 using Catalog.Application.Services;
 using Catalog.Application.Validators;
+using Catalog.Infrastructure.Cache;
+using Catalog.Infrastructure.Data;
+using Catalog.Infrastructure.Repositories;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Serilog;
+using System.Text;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,12 +88,18 @@ builder.Services.AddScoped<ICacheService, MemoryCacheService>();
 builder.Services.AddScoped<ICatalogueService, CatalogueService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
-// -- Repositories
+// -- Repositories (no more UnitOfWork — services inject IRepository<T> directly)
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// -- AutoMapper
+builder.Services.AddAutoMapper(typeof(Catalog.Application.Mappings.CatalogueProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(Catalog.Application.Mappings.ProductProfile).Assembly);
+
 
 // -- Validation
 builder.Services.AddValidatorsFromAssemblyContaining<CreateCatalogueValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+
 
 // -- Carter
 builder.Services.AddCarter();
