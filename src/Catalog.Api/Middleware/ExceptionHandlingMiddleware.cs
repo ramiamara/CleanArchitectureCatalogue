@@ -28,6 +28,7 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
 
     private async Task HandleExceptionAsync(HttpContext ctx, Exception ex)
     {
+        
         var traceId    = ctx.TraceIdentifier;
         var statusCode = GetStatusCode(ex);
 

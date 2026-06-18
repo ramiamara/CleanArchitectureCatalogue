@@ -10,7 +10,7 @@ public class CatalogueEndpoints : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/catalogues")
-                       .RequireAuthorization()
+                     // .RequireAuthorization()
                        .WithTags("Catalogues");
 
         group.MapGet("/", GetAllCatalogues.HandleAsync).WithName("GetAllCatalogues").Produces(200);
