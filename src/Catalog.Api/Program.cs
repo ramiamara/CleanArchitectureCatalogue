@@ -6,20 +6,15 @@ using Catalog.Application.Validators;
 using Catalog.Infrastructure.Cache;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
+using BPRI.ExceptionHandling;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OpenTelemetry.Exporter;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Events;
-using Serilog.Sinks.OpenTelemetry;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -36,24 +31,6 @@ Log.Logger = new LoggerConfiguration()
     // Sorties locales (dev)
     .WriteTo.Console()
     .WriteTo.File("logs/api-.txt", rollingInterval: RollingInterval.Day)
-
-    // ✅ Export vers OpenTelemetry Collector (pour Grafana/Loki)
-    .WriteTo.OpenTelemetry(options =>
-    {
-        options.Endpoint = "http://localhost:4317/v1/logs"; // ← Notez le /v1/logs
-        options.Protocol = OtlpProtocol.Grpc;
-
-        // Headers optionnels si besoin (auth, etc.)
-        // options.Headers = new Dictionary<string, string> { ["Authorization"] = "xxx" };
-
-        // Resource attributes pour que Loki puisse filtrer
-        options.ResourceAttributes = new Dictionary<string, object>
-        {
-            ["service.name"] = "Catalog.Api",
-            ["service.version"] = "1.0.0",
-            ["service.instance.id"] = Environment.MachineName
-        };
-    })
 
     .CreateLogger();
 builder.Host.UseSerilog();
@@ -122,13 +99,19 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // -- AutoMapper
 builder.Services.AddAutoMapper(typeof(Catalog.Application.Mappings.CatalogueProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(Catalog.Application.Mappings.ProductProfile).Assembly);
 
 
 // -- Validation
 builder.Services.AddValidatorsFromAssemblyContaining<CreateCatalogueValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
 
+
+// -- Exception handling (BPRI.ExceptionHandling : logs fichier / SQL Server / e-mail, voir appsettings)
+builder.Services.AddBpriExceptionHandling(builder.Configuration, o =>
+{
+    o.MapException = ExceptionHandlingSetup.MapValidation;
+    o.WriteResponse = ExceptionHandlingSetup.WriteResponse;
+});
 
 // -- Carter
 builder.Services.AddCarter();
@@ -145,26 +128,6 @@ builder.Services.AddCors(options =>
               .AllowCredentials());
 });
 
-
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(r => r.AddService("Catalog.Api", "1.0.0", Environment.MachineName))
-
-    .WithTracing(t => t
-        .AddAspNetCoreInstrumentation()
-        .AddHttpClientInstrumentation()
-        .AddOtlpExporter(o =>
-        {
-            o.Endpoint = new Uri("http://localhost:4317"); // ← Sans /v1/logs
-            o.Protocol = OtlpExportProtocol.Grpc;
-        }))
-
-    .WithMetrics(m => m
-        .AddAspNetCoreInstrumentation()
-        .AddOtlpExporter(o =>
-        {
-            o.Endpoint = new Uri("http://localhost:4317"); // ← Sans /v1/logs
-            o.Protocol = OtlpExportProtocol.Grpc;
-        }));
 
 // -- Swagger + JWT
 builder.Services.AddEndpointsApiExplorer();
@@ -195,7 +158,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // -- Pipeline
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseBpriExceptionHandling();
 
 if (app.Environment.IsDevelopment())
 {
