@@ -1,6 +1,6 @@
 ﻿# Catalogue API
 
-API REST en **.NET 9** suivant les principes de la **Clean Architecture**. Elle permet de gérer des catalogues et leurs produits associes, avec authentification JWT, cache memoire, rate limiting et tracing OpenTelemetry.
+API REST en **.NET 9** suivant les principes de la **Clean Architecture**. Elle permet de gérer des catalogues et leurs produits associes, avec authentification JWT, cache memoire, rate limiting et journalisation centralisee des exceptions.
 
 ---
 
@@ -40,7 +40,7 @@ Api --> Infrastructure --> Domain
 | Logging | Serilog (Console + fichier rotatif) |
 | Cache | IMemoryCache (MemoryCacheService) |
 | Rate Limiting | FixedWindow 200 req/min par IP |
-| Tracing | OpenTelemetry (AspNetCore + Http instrumentation) |
+| Gestion des exceptions | BPRI.ExceptionHandling (logs Serilog : fichier, SQL Server, e-mail) |
 | Tests | xUnit + Moq + FluentAssertions |
 | Documentation | Swagger / OpenAPI |
 | CORS | Politique "AngularPolicy" (configurable) |
@@ -71,9 +71,9 @@ Api --> Infrastructure --> Domain
 ### `Catalog.Api`
 - **Endpoints** : `AuthEndpoints`, `CatalogueEndpoints`, `ProductEndpoints` (Carter ICarterModule)
 - **Middleware** :
-  - `ExceptionHandlingMiddleware` : gestion globale des erreurs — message simple pour l'utilisateur, details complets (TraceId + stacktrace) dans les logs Serilog
+  - Gestion globale des erreurs : bibliotheque `BPRI.ExceptionHandling` (`src/BPRI.ExceptionHandling`, voir son README) — message simple + `traceId` pour l'utilisateur, details complets (stacktrace) dans les logs (`ILogger` + fichier `logs/exceptions-*.log`)
   - `JwtMiddleware` : enrichit le `HttpContext` avec les claims utilisateur
-- **Common** : `ApiResponse<T>`, `ApiError`
+- **Common** : `ApiResponse<T>`, `ApiError`, `ExceptionHandlingSetup` (ValidationException → 400 et format d'erreur `ApiResponse`)
 
 ---
 
@@ -137,19 +137,9 @@ dotnet test src\Catalog.Tests\Catalog.Tests.csproj --verbosity normal
 
 ---
 
-## OpenTelemetry
+## Exceptions
 
-Les traces et metriques sont exportees vers la console en mode developpement.
-
-```
-Activity.DisplayName: POST /api/catalogues
-Activity.Duration:    00:00:00.0234567
-Activity.Tags:
-    http.method: POST
-    http.status_code: 201
-```
-
-Pour connecter un backend (Jaeger, Grafana Tempo, Azure Monitor), remplacer `AddConsoleExporter()` par `AddOtlpExporter()` dans `Program.cs`.
+Toute exception non geree est traitee par `BPRI.ExceptionHandling` : reponse JSON simple avec `traceId`, log fichier (`logs/exceptions-YYYYMMDD.log`) et enregistrement dans une **base dediee** `CatalogueLogsDb` (table `ExceptionLogs`, meme instance SQL Server, chaine `ConnectionStrings:ExceptionLogs`). La base et la table sont creees automatiquement en developpement ; en production, voir `src/BPRI.ExceptionHandling/README.md` (SQL et index conseillé).
 
 ---
 

@@ -1,0 +1,26 @@
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light dark;
+  @include mat.theme((
+    color: mat.$azure-palette,
+    typography: (plain-family: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif', brand-family: 'Inter, system-ui, sans-serif'),
+    density: 0,
+  ));
+  // Couleurs métier (indépendantes du thème)
+  --sev-error: #ef4444;
+  --sev-warning: #f59e0b;
+  --sev-info: #3b82f6;
+}
+html.theme-light { color-scheme: light; }
+html.theme-dark { color-scheme: dark; }
+
+html, body { margin: 0; min-height: 100%; }
+body {
+  font: var(--mat-sys-body-medium-size, 14px) / 1.5 var(--mat-sys-body-large-font, system-ui);
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+}
+
+/* Panneau de détail (dialogue à droite) */
+.detail-panel .mat-mdc-dialog-surface { border-radius: 16px 0 0 16px !important; }

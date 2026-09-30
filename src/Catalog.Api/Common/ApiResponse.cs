@@ -27,7 +27,7 @@ public class ApiResponse<T>
         TraceId = traceId;
     }
 
-    // Parameterless constructor used by ExceptionHandlingMiddleware
+    // Parameterless constructor used by ApiResponseErrorResponseWriter
     public ApiResponse() { }
 }
 

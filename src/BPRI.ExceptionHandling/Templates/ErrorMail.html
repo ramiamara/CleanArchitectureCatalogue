@@ -1,0 +1,18 @@
+<div style="font-family:Segoe UI,Arial,sans-serif;max-width:720px;margin:0 auto 24px;border:1px solid #dadce0;border-radius:8px;overflow:hidden">
+  <div style="background:{{Color}};color:#fff;padding:14px 18px">
+    <div style="font-size:12px;opacity:.85">{{Level}} &middot; {{Timestamp}}</div>
+    <div style="font-size:18px;font-weight:600">{{ExceptionType}} ({{StatusCode}})</div>
+  </div>
+  <div style="padding:18px;color:#202124;font-size:14px">
+    <p style="margin:0 0 14px">{{Message}}</p>
+    <table style="border-collapse:collapse;font-size:13px;width:100%">
+      <tr><td style="padding:4px 12px 4px 0;color:#5f6368;width:130px">Application</td><td>{{ApplicationName}}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;color:#5f6368">Cprj</td><td>{{Cprj}}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;color:#5f6368">TraceId</td><td style="font-family:Consolas,monospace">{{TraceId}}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;color:#5f6368">Requ&ecirc;te</td><td>{{HttpMethod}} {{Path}}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;color:#5f6368">Utilisateur</td><td>{{User}}</td></tr>
+      <tr><td style="padding:4px 12px 4px 0;color:#5f6368">Environnement</td><td>{{Environment}}</td></tr>
+    </table>
+    <pre style="margin:16px 0 0;padding:12px;background:#f1f3f4;border-radius:6px;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word">{{Exception}}</pre>
+  </div>
+</div>
