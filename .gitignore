@@ -124,3 +124,4 @@ $RECYCLE.BIN/
 .env
 .env.local
 .env.*.local
+/BPRI.LogsPlatform/BPRI.LogsPlatform.Front/node_modules
