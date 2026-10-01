@@ -141,7 +141,22 @@ dotnet test src\Catalog.Tests\Catalog.Tests.csproj --verbosity normal
 
 Toute exception non geree est traitee par `BPRI.ExceptionHandling` : reponse JSON simple avec `traceId`, log fichier (`logs/exceptions-YYYYMMDD.log`) et enregistrement dans une **base dediee** `CatalogueLogsDb` (table `ExceptionLogs`, meme instance SQL Server, chaine `ConnectionStrings:ExceptionLogs`). La base et la table sont creees automatiquement en developpement ; en production, voir `src/BPRI.ExceptionHandling/README.md` (SQL et index conseillé).
 
----
+  "ExceptionMail": {
+    "SmtpHost": "smtp.l",
+    "SmtpPort": 587,
+    "UseSsl": true,
+    "SmtpUser": "",
+    "SmtpPassword": "",
+    "FromAddress": "noreply@test.local",
+    "FromName": "  Sample API",
+    "ToAddresses": [
+      "rami@test.local"
+    ],
+    "SubjectPrefix": "[BPR][CPRJ_A][ERREUR]",
+    "MaxRetryAttempts": 3,
+    "RetryDelaySeconds": 2,
+    "TemplateUrl": "Templates/.html"
+  },
 
 ## Logs
 
