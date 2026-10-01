@@ -21,7 +21,7 @@ namespace BPRI.ExceptionHandling;
 internal sealed class ExceptionLogger : IDisposable
 {
     private const string FileTemplate =
-        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Cprj} {TraceId} {StatusCode} {ExceptionType}: {Message:lj}{NewLine}{Exception}";
+        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Cprj} {TraceId} {SourceContext} {StatusCode} {ExceptionType}: {Message:lj}{NewLine}{Exception}";
 
     private readonly Logger _logger;
 
@@ -98,20 +98,16 @@ internal sealed class ExceptionLogger : IDisposable
             path = Path.Combine(contentRoot, path);
         }
 
-        config.WriteTo.Logger(sub =>
+        if (file.Json)
         {
-            sub.Filter.ByIncludingOnly(IsException);
-            if (file.Json)
-            {
-                sub.WriteTo.File(new JsonFormatter(), path, rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: file.RetainedFileCount, shared: true);
-            }
-            else
-            {
-                sub.WriteTo.File(path, outputTemplate: FileTemplate, rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: file.RetainedFileCount, shared: true);
-            }
-        });
+            config.WriteTo.File(new JsonFormatter(), path, rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: file.RetainedFileCount, shared: true);
+        }
+        else
+        {
+            config.WriteTo.File(path, outputTemplate: FileTemplate, rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: file.RetainedFileCount, shared: true);
+        }
     }
 
     private static void AddDatabaseSink(LoggerConfiguration config, DatabaseLogOptions database)
