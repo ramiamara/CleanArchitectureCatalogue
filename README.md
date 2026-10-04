@@ -168,13 +168,168 @@ Niveau minimum : `Debug` (configurable via `appsettings.json`).
 
 ---
 
-## Pagination
+Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.File(
+                    formatter: new CompactJsonFormatter(),
+                        //path: Path.Combine(Environment.CurrentDirectory, "appLog\\applog-.log"),
+                        path: Path.Combine(exePath, "appLog\\applog-.log"),
+                        //path: $"{exePath}\\appLog\\applog-.log",
+                        rollingInterval: RollingInterval.Day,
+                        retainedFileCountLimit: 3,
+                        encoding: Encoding.GetEncoding("ISO-8859-1")
+                    )
+                .Enrich.WithThreadId()
+                    .Enrich.WithProcessId()
+                    .Enrich.WithAssemblyName()
+                    .Enrich.WithUserId()
+                    .Enrich.WithCorrelationId()
+                    .CreateLogger();
 
-Les endpoints de liste supportent la pagination :
 
-```
-GET /api/catalogues?page=1&pageSize=10
-GET /api/products?page=1&pageSize=20
+using Serilog.Configuration;
+using Serilog;
+using Serilog.Core;
+using Serilog.Events;
+using System;
+using System.Reflection;
+using System.Diagnostics;
+using System.Security.Principal;
+using System.Web;
+
+namespace DocuSignSvc.SerilogExtention
+{
+    public class SerilogEnrichers : ILogEventEnricher
+    {
+        public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
+        {
+            LogEventProperty property = propertyFactory.CreateProperty("ThreadId", new ScalarValue(Environment.CurrentManagedThreadId));
+            logEvent.AddPropertyIfAbsent(property);
+        }
+    }
+
+    public class ProcessIdEnricher : ILogEventEnricher
+    {
+        private LogEventProperty _cachedProperty;
+
+        public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
+        {
+            _cachedProperty = _cachedProperty ?? propertyFactory.CreateProperty("ProcessId", new ScalarValue(Process.GetCurrentProcess().Id));
+            logEvent.AddPropertyIfAbsent(_cachedProperty);
+        }
+    }
+
+    public class UserIdEnricher : ILogEventEnricher
+    {
+        public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
+        {
+            string value = string.Empty;
+            if (HttpRuntime.AppDomainAppId != null)
+            {
+                if (HttpContext.Current != null && HttpContext.Current.User != null && HttpContext.Current.User.Identity != null && !string.IsNullOrEmpty(HttpContext.Current.User.Identity.Name))
+                {
+                    value = HttpContext.Current.User.Identity.Name;
+                }
+            }
+            else
+            {
+                value = WindowsIdentity.GetCurrent().Name;
+            }
+
+            if (string.IsNullOrEmpty(value))
+            {
+                value = "Anonymous";
+            }
+
+            LogEventProperty property = propertyFactory.CreateProperty("UserId", new ScalarValue(value));
+            logEvent.AddPropertyIfAbsent(property);
+        }
+    }
+
+    public class CorrelationIdEnricher : ILogEventEnricher
+    {
+        private static readonly string CorrelationIdItemName = $"{typeof(CorrelationIdEnricher).Name}+CorrelationId";
+
+        public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
+        {
+            if (HttpContext.Current != null)
+            {
+                LogEventProperty property = propertyFactory.CreateProperty("CorrelationId", new ScalarValue(GetCorrelationId()));
+                logEvent.AddPropertyIfAbsent(property);
+            }
+        }
+
+        private static string GetCorrelationId()
+        {
+            return (string)(HttpContext.Current.Items[CorrelationIdItemName] ?? (HttpContext.Current.Items[CorrelationIdItemName] = Guid.NewGuid().ToString()));
+        }
+    }
+
+}
+et 
+using Serilog.Configuration;
+using Serilog.Events;
+using Serilog;
+using System;
+using System.Reflection;
+
+namespace DocuSignSvc.SerilogExtention
+{
+    public static class SerilogConfigurationExtensions
+    {
+        public static LoggerConfiguration WithThreadId(this LoggerEnrichmentConfiguration enrichmentConfiguration)
+        {
+            if (enrichmentConfiguration == null)
+            {
+                throw new ArgumentNullException("enrichmentConfiguration");
+            }
+
+            return enrichmentConfiguration.With<SerilogEnrichers>();
+        }
+
+        public static LoggerConfiguration WithProcessId(this LoggerEnrichmentConfiguration enrichmentConfiguration)
+        {
+            if (enrichmentConfiguration == null)
+            {
+                throw new ArgumentNullException("enrichmentConfiguration");
+            }
+
+            return enrichmentConfiguration.With<ProcessIdEnricher>();
+        }
+
+        public static LoggerConfiguration WithUserId(this LoggerEnrichmentConfiguration enrichmentConfiguration)
+        {
+            if (enrichmentConfiguration == null)
+            {
+                throw new ArgumentNullException("enrichmentConfiguration");
+            }
+
+            return enrichmentConfiguration.With<UserIdEnricher>();
+        }
+
+        public static LoggerConfiguration WithAssemblyName(this LoggerEnrichmentConfiguration enrichmentConfiguration)
+        {
+            if (enrichmentConfiguration == null)
+            {
+                throw new ArgumentNullException("enrichmentConfiguration");
+            }
+
+            Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
+            return enrichmentConfiguration.WithProperty("AssemblyName", new ScalarValue(assembly.GetName().Name));
+        }
+
+        public static LoggerConfiguration WithCorrelationId(this LoggerEnrichmentConfiguration enrichmentConfiguration)
+        {
+            if (enrichmentConfiguration == null)
+            {
+                throw new ArgumentNullException("enrichmentConfiguration");
+            }
+
+            return enrichmentConfiguration.With<CorrelationIdEnricher>();
+        }
+    }
+}
+
 ```
 
 Reponse : `PagedResult<T>` avec `Items`, `TotalCount`, `Page`, `PageSize`.
