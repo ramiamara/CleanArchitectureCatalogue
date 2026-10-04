@@ -3,6 +3,7 @@ namespace BPRI.LogsPlatform.Back.Endpoints;
 /// <summary>Paramètres de requête de GET /api/logs (liés via [AsParameters]).</summary>
 public sealed record LogFilter(
     string? Project,
+    string? Application,
     string[]? Severity,
     int[]? StatusCode,
     string? ExceptionType,

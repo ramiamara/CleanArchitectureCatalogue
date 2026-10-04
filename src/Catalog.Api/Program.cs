@@ -1,5 +1,4 @@
 ﻿using Carter;
-using Catalog.Api.Common;
 using Catalog.Api.Middleware;
 using Catalog.Application.Services;
 using Catalog.Application.Validators;
@@ -13,27 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Serilog;
-using Serilog.Events;
 using System.Text;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// -- Serilog
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-    .Enrich.FromLogContext()
-   // .Enrich.WithMachineName()
-    .Enrich.WithProperty("Application", "Catalog.Api")
-
-    // Sorties locales (dev)
-    .WriteTo.Console()
-    .WriteTo.File("logs/api-.txt", rollingInterval: RollingInterval.Day)
-
-    .CreateLogger();
-builder.Host.UseSerilog();
+builder.Configuration.AddBpriExceptionHandlingFile(builder.Environment);
 
 // -- JWT
 var jwtSecret = builder.Configuration["Jwt:SecretKey"]
@@ -109,8 +92,22 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
 // -- Exception handling (BPRI.ExceptionHandling : logs fichier / SQL Server / e-mail, voir appsettings)
 builder.Services.AddBpriExceptionHandling(builder.Configuration, o =>
 {
-    o.MapException = ExceptionHandlingSetup.MapValidation;
-    o.WriteResponse = ExceptionHandlingSetup.WriteResponse;
+    o.MapException = exception =>
+    {
+        if (exception is not ValidationException validation)
+        {
+            return null;
+        }
+
+        var errors = validation.Errors
+            .GroupBy(e => e.PropertyName)
+            .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+
+        return new ErrorInfo(
+            StatusCodes.Status400BadRequest,
+            "Les donnees saisies sont invalides. Veuillez corriger les erreurs.",
+            errors);
+    };
 });
 
 // -- Carter

@@ -1,5 +1,4 @@
 ﻿namespace Catalog.Api.Endpoints.Catalogues;
-using Catalog.Api.Common;
 using Catalog.Application.DTOs;
 using Catalog.Application.Services;
 using FluentValidation;
@@ -18,7 +17,6 @@ internal static class CreateCatalogue
 
         var userId = ctx.User.Identity?.Name ?? "anonymous";
         var dto = await svc.CreateAsync(request, userId);
-        return Results.Created($"/api/catalogues/{dto.Id}",
-            new ApiResponse<CatalogueDto>(dto, traceId: ctx.TraceIdentifier));
+        return Results.Created($"/api/catalogues/{dto.Id}", dto);
     }
 }

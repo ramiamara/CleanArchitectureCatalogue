@@ -13,7 +13,6 @@ export class ThemeService {
       const cl = document.documentElement.classList;
       cl.toggle('theme-dark', m === 'dark');
       cl.toggle('theme-light', m === 'light');
-      cl.toggle('app-dark', m === 'dark');
       try { localStorage.setItem(KEY, m); } catch { /* stockage indisponible */ }
     });
   }

@@ -32,4 +32,31 @@ public sealed record StatsDto(
     IReadOnlyList<TimelinePoint> Timeline,
     string TimelineBucket);
 
-public sealed record FiltersDto(IReadOnlyList<string> ExceptionTypes, IReadOnlyList<int> StatusCodes);
+public sealed record FiltersDto(IReadOnlyList<string> ExceptionTypes, IReadOnlyList<int> StatusCodes, IReadOnlyList<string> Applications);
+
+// ---- Trace des requêtes (table RequestLogs)
+public sealed record RequestListItemDto(
+    int Id, string TraceId, string Cprj, string ApplicationName, string? HttpMethod, string? Path, string? QueryString,
+    int? StatusCode, int? DurationMs, string? UserName, DateTime OccurredAtUtc);
+
+public sealed record RequestDetailDto(
+    int Id, string TraceId, string Cprj, string ApplicationName, string? HttpMethod, string? Path, string? QueryString,
+    int? StatusCode, int? DurationMs, string? UserName, DateTime OccurredAtUtc,
+    string? UserId, string? RequestBody, string? ResponseBody, string? EnvironmentName, string? MachineName);
+
+public sealed record StatusClassCount(string StatusClass, int Count);
+public sealed record MethodCount(string Method, int Count);
+public sealed record SlowEndpoint(string? Method, string? Path, int Count, int AvgDurationMs, int MaxDurationMs);
+public sealed record RequestTimelinePoint(DateTime TimestampUtc, int Success, int ClientError, int ServerError, int AvgDurationMs);
+
+public sealed record RequestStatsDto(
+    int Total, int ServerErrors, int ClientErrors, int AvgDurationMs, int P95DurationMs,
+    IReadOnlyList<StatusClassCount> ByStatusClass,
+    IReadOnlyList<StatusCodeCount> ByStatusCode,
+    IReadOnlyList<MethodCount> ByMethod,
+    IReadOnlyList<EndpointCount> TopEndpoints,
+    IReadOnlyList<SlowEndpoint> SlowEndpoints,
+    IReadOnlyList<RequestTimelinePoint> Timeline,
+    string TimelineBucket);
+
+public sealed record RequestFiltersDto(IReadOnlyList<string> Applications, IReadOnlyList<string> Methods, IReadOnlyList<int> StatusCodes);

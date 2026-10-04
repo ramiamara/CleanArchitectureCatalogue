@@ -1,5 +1,4 @@
 ﻿namespace Catalog.Api.Endpoints.Products;
-using Catalog.Api.Common;
 using Catalog.Application.DTOs;
 using Catalog.Application.Services;
 using FluentValidation;
@@ -19,6 +18,6 @@ internal static class UpdateProduct
 
         var userId = ctx.User.Identity?.Name ?? "anonymous";
         var dto = await svc.UpdateAsync(id, request, userId);
-        return Results.Ok(new ApiResponse<ProductDto>(dto, traceId: ctx.TraceIdentifier));
+        return Results.Ok(dto);
     }
 }

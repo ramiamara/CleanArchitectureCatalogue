@@ -5,11 +5,12 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { ApiService } from './api.service';
 import { Icon } from './icon';
 import { ICONS } from './icons';
-import { LogDetail, LogListItem } from './models';
+import { LogDetail, LogListItem, TraceTarget } from './models';
 import { severityLabel, shortType, statusColor } from './format';
 
 @Component({
   selector: 'app-detail-dialog',
+  
   imports: [DatePipe, MatButtonModule, MatDialogModule, Icon],
   template: `
     <div class="head">
@@ -29,7 +30,8 @@ import { severityLabel, shortType, statusColor } from './format';
           <button mat-icon-button aria-label="Copier le TraceId" (click)="copy(d.traceId)">
             <app-icon [path]="copied() ? icons.check : icons.copy" />
           </button>
-          <button mat-button (click)="ref.close(d.traceId)"><app-icon [path]="icons.search" /> Tous les logs de ce TraceId</button>
+          <button mat-button (click)="go(d.traceId, 'exceptions')"><app-icon [path]="icons.search" /> Tous les logs de ce TraceId</button>
+          <button mat-button (click)="go(d.traceId, 'requests')"><app-icon [path]="icons.search" /> Requête associée</button>
         </div>
         <dl>
           <dt>Date (UTC)</dt><dd>{{ d.occurredAtUtc | date: 'dd/MM/yyyy HH:mm:ss' : 'UTC' }}</dd>
@@ -54,10 +56,10 @@ import { severityLabel, shortType, statusColor } from './format';
     .msg { margin: .75rem 0; }
     .trace { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem; code { font-size: .8rem; } }
     dl { display: grid; grid-template-columns: 9rem 1fr; gap: .35rem .75rem; margin: 1rem 0;
-      dt { color: var(--mat-sys-on-surface-variant); } dd { margin: 0; word-break: break-all; } }
+      dt { color: var(--app-on-variant); } dd { margin: 0; word-break: break-all; } }
     code, pre { font-family: ui-monospace, Consolas, monospace; }
     pre { margin: 0 0 1rem; padding: .9rem; border-radius: 12px; overflow: auto; max-height: 22rem; font-size: .78rem; line-height: 1.5;
-      background: var(--mat-sys-surface-container); border: 1px solid var(--mat-sys-outline-variant); }
+      background: var(--app-container); border: 1px solid var(--app-outline); }
     h4 { margin: 1rem 0 .4rem; }
     .sev { padding: .1rem .55rem; border-radius: 999px; font-size: .75rem; font-weight: 700; color: #fff; }
     .sev[data-sev='Error'] { background: var(--sev-error); } .sev[data-sev='Warning'] { background: var(--sev-warning); color: #1f1300; } .sev[data-sev='Information'] { background: var(--sev-info); }
@@ -66,7 +68,7 @@ import { severityLabel, shortType, statusColor } from './format';
   `,
 })
 export class DetailDialog {
-  protected readonly ref = inject<MatDialogRef<DetailDialog, string | undefined>>(MatDialogRef);
+  protected readonly ref = inject<MatDialogRef<DetailDialog, TraceTarget | undefined>>(MatDialogRef);
   private readonly row = inject<LogListItem>(MAT_DIALOG_DATA);
   private readonly api = inject(ApiService);
   protected readonly icons = ICONS;
@@ -78,6 +80,10 @@ export class DetailDialog {
 
   constructor() {
     this.api.log(this.row.id).subscribe({ next: x => this.d.set(x), error: () => undefined });
+  }
+
+  protected go(traceId: string, view: TraceTarget['view']): void {
+    this.ref.close({ traceId, view });
   }
 
   protected async copy(text: string): Promise<void> {

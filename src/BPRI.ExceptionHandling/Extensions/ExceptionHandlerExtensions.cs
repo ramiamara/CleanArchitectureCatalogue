@@ -9,6 +9,15 @@ namespace BPRI.ExceptionHandling;
 
 public static class ExceptionHandlerExtensions
 {
+    /// <summary>Charge la configuration de gestion d'erreurs depuis <c>exceptionhandling.json</c> puis <c>exceptionhandling.{Environment}.json</c> (optionnel), à appeler avant <see cref="AddBpriExceptionHandling"/>.</summary>
+    public static IConfigurationBuilder AddBpriExceptionHandlingFile(
+        this IConfigurationBuilder configuration, IHostEnvironment environment, string fileName = "exceptionhandling")
+    {
+        configuration.AddJsonFile($"{fileName}.json", optional: false, reloadOnChange: false);
+        configuration.AddJsonFile($"{fileName}.{environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
+        return configuration;
+    }
+
     /// <summary>Lit la section <c>ExceptionHandling</c> et prépare le logger (fichier / SQL Server / e-mail selon la configuration).</summary>
     public static IServiceCollection AddBpriExceptionHandling(
         this IServiceCollection services, IConfiguration configuration, Action<ExceptionHandlingOptions>? configure = null)
@@ -26,10 +35,23 @@ public static class ExceptionHandlerExtensions
         {
             var environment = provider.GetRequiredService<IHostEnvironment>();
             string applicationName = options.ApplicationName ?? environment.ApplicationName;
-            var enricher = new RequestContextEnricher(
+            return new RequestContextEnricher(
                 provider.GetRequiredService<IHttpContextAccessor>(), options, applicationName, environment.EnvironmentName);
-            return new ExceptionLogger(options, environment.ContentRootPath, enricher);
         });
+        services.AddSingleton(provider =>
+        {
+            var environment = provider.GetRequiredService<IHostEnvironment>();
+            return new ExceptionLogger(options, environment.ContentRootPath, provider.GetRequiredService<RequestContextEnricher>());
+        });
+
+        if (options.RequestTracing.Enabled)
+        {
+            services.AddSingleton(provider =>
+            {
+                var environment = provider.GetRequiredService<IHostEnvironment>();
+                return new RequestTraceLogger(options, environment.ContentRootPath, provider.GetRequiredService<RequestContextEnricher>());
+            });
+        }
 
         if (options.ApplicationLogs.Enabled)
         {
@@ -45,6 +67,13 @@ public static class ExceptionHandlerExtensions
     {
         var logger = app.ApplicationServices.GetRequiredService<ExceptionLogger>();
         var options = app.ApplicationServices.GetRequiredService<ExceptionHandlingOptions>();
+
+        if (options.RequestTracing.Enabled)
+        {
+            var traceLogger = app.ApplicationServices.GetRequiredService<RequestTraceLogger>();
+            app.UseMiddleware<RequestTracingMiddleware>(traceLogger, options.RequestTracing);
+        }
+
         return app.UseMiddleware<ExceptionHandlingMiddleware>(logger, options);
     }
 
@@ -60,6 +89,21 @@ public static class ExceptionHandlerExtensions
         if (options.ApplicationLogs.Enabled && !options.Database.Enabled)
         {
             throw new InvalidOperationException("ExceptionHandling:ApplicationLogs nécessite ExceptionHandling:Database:Enabled = true.");
+        }
+
+        RequestTracingOptions tracing = options.RequestTracing;
+        if (tracing.Enabled)
+        {
+            if (!tracing.File.Enabled && !tracing.Database.Enabled)
+            {
+                throw new InvalidOperationException("ExceptionHandling:RequestTracing est activé : activez File et/ou Database.");
+            }
+            if (tracing.Database.Enabled && string.IsNullOrWhiteSpace(options.Database.ConnectionString))
+            {
+                throw new InvalidOperationException(
+                    "ExceptionHandling:RequestTracing:Database est activé mais aucune chaîne de connexion n'est définie (ConnectionStrings:"
+                    + options.Database.ConnectionStringName + ").");
+            }
         }
 
         var email = options.Email;

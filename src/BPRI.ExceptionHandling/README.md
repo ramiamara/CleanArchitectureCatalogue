@@ -13,12 +13,25 @@ Le logger est propre à la bibliothèque : il ne remplace pas le logger de l'app
 ## Utilisation
 
 ```csharp
+builder.Configuration.AddBpriExceptionHandlingFile(builder.Environment);   // lit exceptionhandling.json (+ exceptionhandling.{Environment}.json)
 builder.Services.AddBpriExceptionHandling(builder.Configuration);
 // ...
 app.UseBpriExceptionHandling();   // en premier dans le pipeline
 ```
 
-## Configuration (appsettings.json)
+## Trace des requêtes (désactivée par défaut)
+
+`ExceptionHandling:RequestTracing:Enabled = true` enregistre, pour les requêtes GET, POST, PUT et DELETE : méthode, chemin, query string, corps de la requête, statut, corps de la réponse, durée, utilisateur, cprj et TraceId.
+
+- **Fichier dédié** (`RequestTracing:File`, par défaut `logs/requests-.log`, JSON) : séparé des logs d'exceptions.
+- **Table dédiée** (`RequestTracing:Database`, par défaut `dbo.RequestLogs`, désactivée) : même base et même chaîne de connexion que `ExceptionHandling:Database`.
+- Les valeurs de `password`, `token`, `secret`, `authorization`, `apiKey`… (plus `MaskedFields`) sont remplacées par `***`. L'en-tête `Authorization` n'est jamais enregistré.
+- Seuls les corps texte (JSON, XML, texte, formulaire) sont enregistrés, tronqués à `MaxBodyLength`. Le reste est signalé par `[contenu non texte]`.
+- Le middleware se place automatiquement par `UseBpriExceptionHandling()`. Il met la réponse en mémoire tampon : à éviter pour des flux (SSE) ou de gros téléchargements.
+
+## Configuration (exceptionhandling.json)
+
+La section `ExceptionHandling` se place dans un fichier dédié `exceptionhandling.json` à la racine du projet (surcharge possible par `exceptionhandling.Development.json`). Elle peut aussi rester dans `appsettings.json` : dans ce cas, on n'appelle pas `AddBpriExceptionHandlingFile`. Le mot de passe SMTP se met dans les user-secrets ou une variable d'environnement, pas dans le fichier.
 
 ```json
 "ExceptionHandling": {
@@ -27,7 +40,7 @@ app.UseBpriExceptionHandling();   // en premier dans le pipeline
   "UserFriendlyMessage": "Une erreur inattendue est survenue.",
   "Context": { "CprjClaim": "cprj", "CprjHeader": null, "UserIdClaim": "sub", "LoggedClaims": [ "role", "email" ] },
   "ApplicationLogs": { "Enabled": true, "MinimumLevel": "Information", "FrameworkMinimumLevel": "Warning" },
-  "File": { "Enabled": true, "Path": "logs/exceptions-.log", "Json": false, "RetainedFileCount": 30 },
+  "File": { "Enabled": true, "Path": "logs/exceptions-.log", "Json": false, "Compact": false, "RetainedFileCount": 30 },
   "Database": {
     "Enabled": true,
     "ConnectionStringName": "ExceptionLogs",

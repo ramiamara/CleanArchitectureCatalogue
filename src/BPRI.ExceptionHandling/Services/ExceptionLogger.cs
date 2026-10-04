@@ -7,6 +7,8 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Core.Enrichers;
 using Serilog.Events;
+using Serilog.Formatting;
+using Serilog.Formatting.Compact;
 using Serilog.Formatting.Display;
 using Serilog.Formatting.Json;
 using Serilog.Sinks.Email;
@@ -81,6 +83,16 @@ internal sealed class ExceptionLogger : IDisposable
         return logEvent.Properties.ContainsKey("ExceptionType");
     }
 
+    /// <summary>JSON complet ou JSON compact selon File:Compact.</summary>
+    internal static ITextFormatter JsonFormat(FileLogOptions file)
+    {
+        if (file.Compact)
+        {
+            return new CompactJsonFormatter();
+        }
+        return new JsonFormatter();
+    }
+
     private static void EnableSelfLog()
     {
         Serilog.Debugging.SelfLog.Enable(message =>
@@ -100,7 +112,7 @@ internal sealed class ExceptionLogger : IDisposable
 
         if (file.Json)
         {
-            config.WriteTo.File(new JsonFormatter(), path, rollingInterval: RollingInterval.Day,
+            config.WriteTo.File(JsonFormat(file), path, rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: file.RetainedFileCount, shared: true);
         }
         else
@@ -199,7 +211,7 @@ internal sealed class ExceptionLogger : IDisposable
         return columns;
     }
 
-    private static SqlColumn TextColumn(string name, int length)
+    internal static SqlColumn TextColumn(string name, int length)
     {
         return new SqlColumn { ColumnName = name, DataType = SqlDbType.NVarChar, DataLength = length, AllowNull = true };
     }
@@ -217,7 +229,7 @@ internal sealed class ExceptionLogger : IDisposable
         return Convert.ToHexString(hash, 0, 8);
     }
 
-    private static void CreateDatabaseIfMissing(string connectionString)
+    internal static void CreateDatabaseIfMissing(string connectionString)
     {
         try
         {

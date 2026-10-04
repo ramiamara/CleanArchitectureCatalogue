@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { Sort, MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { ApiService } from '../api.service';
 import { ChartView } from '../chart';
@@ -17,12 +17,13 @@ import { DetailDialog } from '../detail-dialog';
 import { SEVERITY_COLORS, severityLabel, shortType, statusColor } from '../format';
 import { Icon } from '../icon';
 import { ICONS } from '../icons';
-import { Filters, LogListItem, Severity, Stats } from '../models';
+import { Filters, LogListItem, Severity, Stats, TraceTarget } from '../models';
 import { Store } from '../store';
 import { ThemeService } from '../theme.service';
 
 @Component({
   selector: 'app-dashboard',
+  
   imports: [
     DatePipe, DecimalPipe, FormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatPaginatorModule, MatProgressBarModule, MatSelectModule, MatSortModule, MatTableModule, ChartView, Icon,
@@ -41,7 +42,7 @@ export class Dashboard {
 
   // ---- données
   protected readonly stats = signal<Stats | null>(null);
-  protected readonly filters = signal<Filters>({ exceptionTypes: [], statusCodes: [] });
+  protected readonly filters = signal<Filters>({ exceptionTypes: [], statusCodes: [], applications: [] });
   protected readonly rows = signal<LogListItem[]>([]);
   protected readonly total = signal(0);
   protected readonly loadingStats = signal(false);
@@ -68,13 +69,14 @@ export class Dashboard {
   private logsToken = 0;
 
   constructor() {
-    // Stats + valeurs de filtres : dépendent du projet et de la période uniquement.
+    // Stats + valeurs de filtres : dépendent du projet, de l'application et de la période.
     effect(() => {
       const project = this.store.project();
+      const application = this.store.application();
       const { from, to } = this.store.window();
       const token = ++this.statsToken;
       this.loadingStats.set(true);
-      this.api.stats(project, from, to).subscribe({
+      this.api.stats(project, from, to, application).subscribe({
         next: s => { if (token === this.statsToken) { this.stats.set(s); this.loadingStats.set(false); } },
         error: () => { if (token === this.statsToken) { this.stats.set(null); this.loadingStats.set(false); } },
       });
@@ -84,9 +86,9 @@ export class Dashboard {
       });
     });
 
-    // Changement de projet / période / filtre => retour page 1
+    // Changement de projet / application / période / filtre => retour page 1
     effect(() => {
-      this.store.project(); this.store.rangeHours(); this.store.traceId();
+      this.store.project(); this.store.application(); this.store.rangeHours(); this.store.traceId();
       this.severityFilter(); this.statusFilter(); this.typeFilter(); this.searchText();
       this.page.set(1);
     });
@@ -94,6 +96,7 @@ export class Dashboard {
     // Liste des logs
     effect(() => {
       const project = this.store.project();
+      const application = this.store.application();
       const traceId = this.store.traceId();
       const w = this.store.window();
       // Une recherche par TraceId ignore la période (on remonte au maximum autorisé : 365 jours).
@@ -101,7 +104,7 @@ export class Dashboard {
       const token = ++this.logsToken;
       this.loadingLogs.set(true);
       this.api.logs({
-        project, from, to: w.to,
+        project, application: application || undefined, from, to: w.to,
         severity: this.severityFilter(),
         statusCode: this.statusFilter(),
         exceptionType: this.typeFilter() ?? undefined,
@@ -121,11 +124,13 @@ export class Dashboard {
     });
   }
 
+  protected readonly topEndpoints = computed(() => this.stats()?.topEndpoints ?? []);
+
   // ---- KPI
   protected readonly kpis = computed(() => {
     const s = this.stats();
     return [
-      { label: 'Total', value: s?.total ?? 0, color: 'var(--mat-sys-primary)' },
+      { label: 'Total', value: s?.total ?? 0, color: 'var(--app-primary)' },
       { label: 'Erreurs', value: s?.errors ?? 0, color: SEVERITY_COLORS.Error },
       { label: 'Avertissements', value: s?.warnings ?? 0, color: SEVERITY_COLORS.Warning },
       { label: 'Informations', value: s?.informations ?? 0, color: SEVERITY_COLORS.Information },
@@ -135,7 +140,7 @@ export class Dashboard {
   // ---- graphiques (Chart.js)
   private readonly palette = computed(() =>
     this.theme.mode() === 'dark'
-      ? { text: '#cbd5e1', grid: 'rgba(148,163,184,.18)', border: '#2b2930' }
+      ? { text: '#cbd5e1', grid: 'rgba(148,163,184,.18)', border: '#1c1d24' }
       : { text: '#475569', grid: 'rgba(100,116,139,.18)', border: '#ffffff' });
 
   protected readonly severityData = computed(() => {
@@ -224,10 +229,10 @@ export class Dashboard {
 
   // ---- détail
   protected open(row: LogListItem): void {
-    this.dialog.open<DetailDialog, LogListItem, string | undefined>(DetailDialog, {
+    this.dialog.open<DetailDialog, LogListItem, TraceTarget | undefined>(DetailDialog, {
       data: row,
       width: 'min(46rem, 100vw)', maxWidth: '100vw', height: '100vh',
       position: { right: '0', top: '0' }, panelClass: 'detail-panel',
-    }).afterClosed().subscribe(traceId => { if (traceId) this.store.traceId.set(traceId); });
+    }).afterClosed().subscribe(target => { if (target) this.store.goToTrace(target.traceId, target.view); });
   }
 }

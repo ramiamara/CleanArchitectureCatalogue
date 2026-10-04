@@ -5,6 +5,7 @@ using Catalog.Application.DTOs;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Cache;
 using Catalog.Infrastructure.Repositories;
+using Microsoft.Extensions.Logging;
 
 public interface ICatalogueService
 {
@@ -22,16 +23,21 @@ public class CatalogueService : ICatalogueService
     private readonly IRepository<Catalogue> _repo;
     private readonly ICacheService          _cache;
     private readonly IMapper                _mapper;
+    private readonly ILogger<CatalogueService> _logger;
 
-    public CatalogueService(IRepository<Catalogue> repo, ICacheService cache, IMapper mapper)
+    public CatalogueService(IRepository<Catalogue> repo, ICacheService cache, IMapper mapper, ILogger<CatalogueService> logger)
     {
         _repo   = repo;
         _cache  = cache;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<PagedResult<CatalogueDto>> GetAllAsync(int page, int pageSize)
     {
+        _logger.LogInformation("Test infos : lecture du catalogue page {Page}", page);
+        _logger.LogWarning("Test warnings : lecture du catalogue page {Page}", page);
+
         var key    = $"{Prefix}:page:{page}:size:{pageSize}";
         var cached = _cache.Get<PagedResult<CatalogueDto>>(key);
         if (cached is not null) return cached;

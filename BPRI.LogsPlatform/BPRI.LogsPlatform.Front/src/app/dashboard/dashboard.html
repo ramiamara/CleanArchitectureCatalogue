@@ -29,8 +29,8 @@
     <mat-card-header><mat-card-title>Endpoints les plus touchés</mat-card-title></mat-card-header>
     <mat-card-content>
       <ul class="endpoints">
-        @for (e of stats()?.topEndpoints ?? []; track e.method + (e.path ?? '')) {
-          <li><span class="method">{{ e.method }}</span><span class="path" [title]="e.path ?? ''">{{ e.path }}</span><span class="count">{{ e.count | number }}</span></li>
+        @for (e of topEndpoints(); track $index) {
+          <li><span class="method">{{ e.method }}</span><span class="path" [attr.title]="e.path">{{ e.path }}</span><span class="count">{{ e.count | number }}</span></li>
         } @empty { <li class="empty">Aucune donnée</li> }
       </ul>
     </mat-card-content>

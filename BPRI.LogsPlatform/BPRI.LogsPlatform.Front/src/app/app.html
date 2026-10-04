@@ -3,9 +3,19 @@
 
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="project-select">
     <mat-label>Projet (cprj)</mat-label>
-    <mat-select [value]="store.project()" (selectionChange)="store.project.set($event.value)">
+    <mat-select [value]="store.project()" (selectionChange)="store.setProject($event.value)">
       @for (p of store.projects(); track p.code) {
         <mat-option [value]="p.code">{{ p.code }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="application-select">
+    <mat-label>Application</mat-label>
+    <mat-select [value]="store.application()" (selectionChange)="store.application.set($event.value)">
+      <mat-option value="">Toutes</mat-option>
+      @for (a of store.applications(); track a) {
+        <mat-option [value]="a">{{ a }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
@@ -42,5 +52,15 @@
   @if (store.apiError(); as err) {
     <div class="api-error" role="alert">{{ err }}</div>
   }
-  <app-dashboard (clearTrace)="clearTrace()" />
+
+  <mat-button-toggle-group class="views" [value]="store.view()" (change)="store.view.set($event.value)" hideSingleSelectionIndicator aria-label="Vue">
+    <mat-button-toggle value="exceptions">Exceptions</mat-button-toggle>
+    <mat-button-toggle value="requests">Requêtes</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  @if (store.view() === 'exceptions') {
+    <app-dashboard (clearTrace)="clearTrace()" />
+  } @else {
+    <app-requests (clearTrace)="clearTrace()" />
+  }
 </main>

@@ -35,5 +35,6 @@ app.UseCors("Web");
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapLogsEndpoints();
+app.MapRequestsEndpoints();
 
 app.Run();

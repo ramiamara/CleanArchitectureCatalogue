@@ -26,6 +26,28 @@ public sealed class LogEntry
     public string? Claims { get; set; }
 }
 
+public sealed class RequestLogEntry
+{
+    public int Id { get; set; }
+    public string? Message { get; set; }
+    public string? Level { get; set; }
+    public DateTime TimeStamp { get; set; }
+    public string? TraceId { get; set; }
+    public string? Cprj { get; set; }
+    public string? ApplicationName { get; set; }
+    public string? EnvironmentName { get; set; }
+    public string? MachineName { get; set; }
+    public string? HttpMethod { get; set; }
+    public string? Path { get; set; }
+    public string? QueryString { get; set; }
+    public int? StatusCode { get; set; }
+    public int? DurationMs { get; set; }
+    public string? UserName { get; set; }
+    public string? UserId { get; set; }
+    public string? RequestBody { get; set; }
+    public string? ResponseBody { get; set; }
+}
+
 public sealed class LogsDbContext : DbContext
 {
     private readonly IConfiguration _configuration;
@@ -37,6 +59,7 @@ public sealed class LogsDbContext : DbContext
     }
 
     public DbSet<LogEntry> Logs { get; set; } = null!;
+    public DbSet<RequestLogEntry> Requests { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -45,5 +68,11 @@ public sealed class LogsDbContext : DbContext
 
         modelBuilder.Entity<LogEntry>().ToTable(table, schema);
         modelBuilder.Entity<LogEntry>().HasKey(x => x.Id);
+
+        string requestTable = _configuration["RequestLogsTable:TableName"] ?? "RequestLogs";
+        string requestSchema = _configuration["RequestLogsTable:SchemaName"] ?? "dbo";
+
+        modelBuilder.Entity<RequestLogEntry>().ToTable(requestTable, requestSchema);
+        modelBuilder.Entity<RequestLogEntry>().HasKey(x => x.Id);
     }
 }

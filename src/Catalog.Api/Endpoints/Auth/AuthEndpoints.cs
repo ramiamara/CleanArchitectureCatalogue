@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Carter;
-using Catalog.Api.Common;
+using BPRI.ExceptionHandling;
 using Catalog.Application.DTOs;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,15 +20,15 @@ public class AuthEndpoints : ICarterModule
            .AllowAnonymous()
            .WithName("Login")
            .WithTags("Auth")
-           .Produces<ApiResponse<TokenResponse>>(200)
+           .Produces<TokenResponse>(200)
            .Produces(400)
            .Produces(401);
     }
 
-    private static IResult Login(LoginRequest request, IConfiguration config, HttpContext ctx)
+    private static IResult Login(LoginRequest request, IConfiguration config)
     {
         if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
-            return Results.BadRequest(new ApiError { Code = "MISSING_CREDENTIALS", Description = "Identifiants manquants." });
+            throw new AppException("Identifiants manquants.", StatusCodes.Status400BadRequest);
 
         // Demo: in production, validate against DB with hashed passwords
         var isValid = request.Username == "admin" && request.Password == "admin";
@@ -36,10 +36,8 @@ public class AuthEndpoints : ICarterModule
             return Results.Unauthorized();
 
         var role   = request.Username == "admin" ? "Admin" : "User";
-        var traceId = ctx.TraceIdentifier;
         var token  = GenerateToken(request.Username, role, config);
-        var response = new ApiResponse<TokenResponse>(token, traceId: traceId);
-        return Results.Ok(response);
+        return Results.Ok(token);
     }
 
     private static TokenResponse GenerateToken(string username, string role, IConfiguration config)

@@ -70,31 +70,38 @@ internal static class LogsEndpoints
     }
 
     private static async Task<IResult> GetStats(
-        [FromQuery] string? project, [FromQuery] DateTimeOffset? from, [FromQuery] DateTimeOffset? to,
+        [FromQuery] string? project, [FromQuery] string? application, [FromQuery] DateTimeOffset? from, [FromQuery] DateTimeOffset? to,
         LogsDbContext db, CancellationToken ct)
     {
         var cprj = RequireProject(project);
         var (fromUtc, toUtc) = LogQueries.ResolveRange(from, to);
-        var scope = db.InScope(cprj, fromUtc, toUtc);
+        var scope = db.InScope(cprj, fromUtc, toUtc, application);
 
         var bySeverity = (await scope.GroupBy(l => l.Level).Select(g => new { Level = g.Key, Count = g.Count() }).ToListAsync(ct))
             .GroupBy(x => LogQueries.NormalizeLevel(x.Level))
             .Select(g => new SeverityCount(g.Key, g.Sum(x => x.Count))).ToList();
 
-        var byStatus = await scope.Where(l => l.StatusCode != null)
+        var statusRows = await scope.Where(l => l.StatusCode != null)
             .GroupBy(l => l.StatusCode!.Value)
-            .Select(g => new StatusCodeCount(g.Key, g.Count()))
-            .OrderBy(x => x.StatusCode).ToListAsync(ct);
+            .Select(g => new { Code = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+        var byStatus = statusRows.OrderBy(x => x.Code).Select(x => new StatusCodeCount(x.Code, x.Count)).ToList();
 
-        var byType = await scope.Where(l => l.ExceptionType != null)
+        var typeRows = await scope.Where(l => l.ExceptionType != null)
             .GroupBy(l => l.ExceptionType!)
-            .Select(g => new ExceptionTypeCount(g.Key, g.Count()))
-            .OrderByDescending(x => x.Count).Take(10).ToListAsync(ct);
+            .OrderByDescending(g => g.Count())
+            .Take(10)
+            .Select(g => new { Type = g.Key, Count = g.Count() })
+            .ToListAsync(ct);
+        var byType = typeRows.Select(x => new ExceptionTypeCount(x.Type, x.Count)).ToList();
 
-        var endpoints = await scope.Where(l => l.Path != null)
+        var endpointRows = await scope.Where(l => l.Path != null)
             .GroupBy(l => new { l.HttpMethod, l.Path })
-            .Select(g => new EndpointCount(g.Key.HttpMethod, g.Key.Path, g.Count()))
-            .OrderByDescending(x => x.Count).Take(8).ToListAsync(ct);
+            .OrderByDescending(g => g.Count())
+            .Take(8)
+            .Select(g => new { g.Key.HttpMethod, g.Key.Path, Count = g.Count() })
+            .ToListAsync(ct);
+        var endpoints = endpointRows.Select(x => new EndpointCount(x.HttpMethod, x.Path, x.Count)).ToList();
 
         var hourly = (toUtc - fromUtc).TotalDays <= 2;
         var buckets = new List<(int Bucket, string Level, int Count)>();
@@ -142,9 +149,10 @@ internal static class LogsEndpoints
         var (fromUtc, toUtc) = LogQueries.ResolveRange(from, to);
         var scope = db.InScope(cprj, fromUtc, toUtc);
 
+        var applications = await scope.Where(l => l.ApplicationName != null).Select(l => l.ApplicationName!).Distinct().OrderBy(x => x).ToListAsync(ct);
         var types = await scope.Where(l => l.ExceptionType != null).Select(l => l.ExceptionType!).Distinct().OrderBy(x => x).ToListAsync(ct);
         var codes = await scope.Where(l => l.StatusCode != null).Select(l => l.StatusCode!.Value).Distinct().OrderBy(x => x).ToListAsync(ct);
-        return Results.Ok(new FiltersDto(types, codes));
+        return Results.Ok(new FiltersDto(types, codes, applications));
     }
 
     private static int CountOf(List<SeverityCount> counts, string severity)
@@ -215,12 +223,12 @@ internal static class LogsEndpoints
         return points;
     }
 
-    private static string Truncate(string? value, int max)
+    internal static string Truncate(string? value, int max)
     {
         return value == null ? "" : value.Length <= max ? value : value.Substring(0, max);
     }
 
-    private static string RequireProject(string? project)
+    internal static string RequireProject(string? project)
     {
         if (string.IsNullOrWhiteSpace(project))
         {

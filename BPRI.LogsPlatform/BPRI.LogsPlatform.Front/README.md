@@ -1,11 +1,14 @@
-# BPRI.LogsPlatform.Front (Angular 22 + Angular Material)
+# BPRI.LogsPlatform.Front (Angular 21 + Angular Material)
 
-Interface de consultation des logs d'exceptions (type Grafana) : sélecteur de projet (`cprj`, ex. `CatalogueAPP`),
-recherche par TraceId, période, KPI, graphiques (sévérité Error/Warning/Info, codes HTTP dont 403, types d'exception,
-chronologie, endpoints), tableau filtrable/paginé et détail d'un log. Accès libre, thèmes clair et sombre
-(bouton en haut à droite, mémorisé, suit la préférence du système au premier lancement).
+Interface de consultation des logs (type Grafana), en accès libre, thèmes clair et sombre (bouton en haut à droite, mémorisé).
 
-Interface : Angular Material 22 (thème Material 3). Graphiques : Chart.js (Material n'a pas de composant de graphiques).
+Barre du haut : projet (`cprj`, par défaut `CatalogueAPP`), **application**, période, recherche par **TraceId** (toute période).
+
+- **Exceptions** : KPI, graphiques (sévérité, chronologie, codes HTTP, types d'exception, endpoints), tableau filtrable/paginé, détail d'un log.
+- **Requêtes** : KPI (total, 4xx, 5xx, durée moyenne et P95), graphiques (statuts, chronologie avec durée moyenne, codes HTTP, méthodes), endpoints les plus appelés et les plus lents, tableau filtrable (méthode, code, durée minimale, texte) avec détail (corps de la requête et de la réponse).
+  Les données viennent de la table `RequestLogs`, remplie si `RequestTracing:Database:Enabled` vaut `true` côté API tracée.
+
+Depuis un détail, on passe d'une requête à ses exceptions (et inversement) grâce au TraceId.
 
 ## Démarrage
 
@@ -19,8 +22,8 @@ L'API est `BPRI.LogsPlatform.Back` (`dotnet run`, port 5080).
 ### Sans SQL Server : faux serveur d'API
 
 ```bash
-npm run build && node mock/server.mjs     # http://localhost:5080 (sert aussi le build)
+npm run build && npm run mock     # http://localhost:5080 (sert aussi le build)
 ```
 
 ## Prérequis
-Node.js >= 22.22.3 (ou >= 24.15) pour Angular CLI 22.
+Node.js 20.19+, 22.12+ ou 24+ (Angular 21). Application sans zone.js (zoneless), thème Material 3.

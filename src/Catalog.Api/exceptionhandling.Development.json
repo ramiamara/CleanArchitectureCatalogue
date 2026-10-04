@@ -1,0 +1,8 @@
+﻿{
+  "ExceptionHandling": {
+    "Email": {
+      "Enabled": true,
+      "BatchPeriodSeconds": 5
+    }
+  }
+}

@@ -32,6 +32,9 @@ public sealed class ExceptionHandlingOptions
     public DatabaseLogOptions Database { get; set; } = new();
     public EmailLogOptions Email { get; set; } = new();
 
+    /// <summary>Trace des requêtes (entrées et réponses). Désactivée par défaut.</summary>
+    public RequestTracingOptions RequestTracing { get; set; } = new();
+
     /// <summary>(Code uniquement) Transforme une exception en réponse HTTP. Retourner null pour le comportement par défaut.</summary>
     public Func<Exception, ErrorInfo?>? MapException { get; set; }
 
@@ -76,6 +79,9 @@ public sealed class FileLogOptions
 
     /// <summary>Écrire en JSON (une ligne par log) plutôt qu'en texte.</summary>
     public bool Json { get; set; }
+
+    /// <summary>Avec Json = true : format JSON compact de Serilog (@t, @mt, @l, @x) au lieu du JSON complet.</summary>
+    public bool Compact { get; set; }
 
     public int RetainedFileCount { get; set; } = 30;
 }
@@ -122,4 +128,40 @@ public sealed class EmailLogOptions
     /// <summary>Les erreurs sont regroupées : un e-mail au plus toutes les N secondes (ou dès que BatchSize erreurs sont en attente).</summary>
     public int BatchPeriodSeconds { get; set; } = 30;
     public int BatchSize { get; set; } = 20;
+}
+
+/// <summary>Trace des requêtes GET, POST, PUT et DELETE : entrées et réponses, dans un fichier et/ou une table dédiée (distincts des logs d'exceptions).</summary>
+public sealed class RequestTracingOptions
+{
+    /// <summary>Désactivé par défaut. Les corps peuvent contenir des données personnelles : à activer en connaissance de cause.</summary>
+    public bool Enabled { get; set; }
+
+    /// <summary>Méthodes tracées. Vide = GET, POST, PUT, DELETE.</summary>
+    public List<string> Methods { get; set; } = [];
+
+    /// <summary>Chemins ignorés (début de chemin). Ex. : ["/swagger", "/health"].</summary>
+    public List<string> ExcludedPaths { get; set; } = [];
+
+    public bool IncludeRequestBody { get; set; } = true;
+    public bool IncludeResponseBody { get; set; } = true;
+
+    /// <summary>Longueur maximale d'un corps enregistré (le reste est tronqué).</summary>
+    public int MaxBodyLength { get; set; } = 4000;
+
+    /// <summary>Champs dont la valeur est remplacée par *** (en plus de password, motdepasse, pwd, secret, token, accessToken, refreshToken, authorization, apiKey).</summary>
+    public List<string> MaskedFields { get; set; } = [];
+
+    /// <summary>Fichier dédié à la trace des requêtes.</summary>
+    public FileLogOptions File { get; set; } = new() { Path = "logs/requests-.log", Json = true };
+
+    /// <summary>Table dédiée (même base que ExceptionHandling:Database, même chaîne de connexion).</summary>
+    public RequestTraceDatabaseOptions Database { get; set; } = new();
+}
+
+public sealed class RequestTraceDatabaseOptions
+{
+    public bool Enabled { get; set; }
+    public string TableName { get; set; } = "RequestLogs";
+    public string SchemaName { get; set; } = "dbo";
+    public bool AutoCreateTable { get; set; } = true;
 }

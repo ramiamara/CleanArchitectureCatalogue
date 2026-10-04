@@ -9,15 +9,28 @@ internal static class LogQueries
     public const int MaxRangeDays = 366;
     public const int MaxPageSize = 200;
 
-    public static IQueryable<LogEntry> InScope(this LogsDbContext db, string cprj, DateTime fromUtc, DateTime toUtc)
+    public static IQueryable<LogEntry> InScope(this LogsDbContext db, string cprj, DateTime fromUtc, DateTime toUtc, string? application = null)
     {
-        return db.Logs
+        var query = db.Logs
             .AsNoTracking()
             .Where(l => l.Cprj == cprj && l.TimeStamp >= fromUtc && l.TimeStamp <= toUtc);
+
+        if (!string.IsNullOrWhiteSpace(application))
+        {
+            string name = application.Trim();
+            query = query.Where(l => l.ApplicationName == name);
+        }
+        return query;
     }
 
     public static IQueryable<LogEntry> ApplyFilter(this IQueryable<LogEntry> query, LogFilter filter)
     {
+        if (!string.IsNullOrWhiteSpace(filter.Application))
+        {
+            string application = filter.Application.Trim();
+            query = query.Where(l => l.ApplicationName == application);
+        }
+
         if (filter.Severity != null && filter.Severity.Length > 0)
         {
             var levels = new List<string>();
