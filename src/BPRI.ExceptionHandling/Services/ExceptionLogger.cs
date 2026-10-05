@@ -57,6 +57,20 @@ internal sealed class ExceptionLogger : IDisposable
         return _logger.ForContext("SourceContext", category);
     }
 
+    /// <summary>404 : Information, autres 4xx : Warning, 5xx : Error.</summary>
+    internal static LogEventLevel LevelFor(int statusCode)
+    {
+        if (statusCode == 404)
+        {
+            return LogEventLevel.Information;
+        }
+        if (statusCode < 500)
+        {
+            return LogEventLevel.Warning;
+        }
+        return LogEventLevel.Error;
+    }
+
     /// <summary>Exception gérée par le middleware. Le contexte (cprj, utilisateur, TraceId…) est ajouté par l'enricher.</summary>
     public void Write(LogEventLevel level, Exception exception, int statusCode)
     {

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Http;
-using Serilog.Events;
 
 namespace BPRI.ExceptionHandling;
 
@@ -34,7 +33,7 @@ internal sealed class ExceptionHandlingMiddleware
         {
             ErrorInfo error = _options.MapException?.Invoke(ex) ?? MapDefault(ex);
 
-            _logger.Write(GetLevel(error.StatusCode), ex, error.StatusCode);
+            _logger.Write(ExceptionLogger.LevelFor(error.StatusCode), ex, error.StatusCode);
 
             if (context.Response.HasStarted)
             {
@@ -51,11 +50,6 @@ internal sealed class ExceptionHandlingMiddleware
                 await WriteProblem(context, error, traceId);
             }
         }
-    }
-
-    private static LogEventLevel GetLevel(int statusCode)
-    {
-        return statusCode == 404 ? LogEventLevel.Information : statusCode < 500 ? LogEventLevel.Warning : LogEventLevel.Error;
     }
 
     private ErrorInfo MapDefault(Exception ex)

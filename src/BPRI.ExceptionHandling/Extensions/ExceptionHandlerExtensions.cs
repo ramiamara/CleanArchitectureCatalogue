@@ -44,6 +44,8 @@ public static class ExceptionHandlerExtensions
             return new ExceptionLogger(options, environment.ContentRootPath, provider.GetRequiredService<RequestContextEnricher>());
         });
 
+        services.AddSingleton<IExceptionReporter, ExceptionReporter>();
+
         if (options.RequestTracing.Enabled)
         {
             services.AddSingleton(provider =>

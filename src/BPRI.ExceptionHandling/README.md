@@ -19,6 +19,39 @@ builder.Services.AddBpriExceptionHandling(builder.Configuration);
 app.UseBpriExceptionHandling();   // en premier dans le pipeline
 ```
 
+## Batch, service ou application console
+
+Le paquet fonctionne avec un host .NET (`Host.CreateApplicationBuilder` ou Worker Service). Pas de middleware : on injecte `IExceptionReporter`.
+
+```csharp
+var builder = Host.CreateApplicationBuilder(args);
+builder.Configuration.AddBpriExceptionHandlingFile(builder.Environment);
+builder.Services.AddBpriExceptionHandling(builder.Configuration);
+builder.Services.AddHostedService<MonBatch>();
+
+using var host = builder.Build();   // la libération du host envoie les derniers logs en base
+await host.RunAsync();
+
+public class MonBatch(IExceptionReporter reporter, ILogger<MonBatch> logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken token)
+    {
+        try
+        {
+            logger.LogInformation("Début du traitement");
+        }
+        catch (Exception ex)
+        {
+            reporter.Report(ex);   // fichier + SQL Server + e-mail, comme dans une API
+        }
+    }
+}
+```
+
+- Utiliser des chemins absolus dans `File:Path` et copier `exceptionhandling.json` dans le dossier de sortie.
+- Le cprj est celui de `ExceptionHandling:Cprj` (pas de JWT).
+- `RequestTracing` ne sert à rien hors HTTP.
+
 ## Trace des requêtes (désactivée par défaut)
 
 `ExceptionHandling:RequestTracing:Enabled = true` enregistre, pour les requêtes GET, POST, PUT et DELETE : méthode, chemin, query string, corps de la requête, statut, corps de la réponse, durée, utilisateur, cprj et TraceId.

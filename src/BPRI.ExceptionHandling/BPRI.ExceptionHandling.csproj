@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <PackageId>BPRI.ExceptionHandling</PackageId>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <Authors>BPRI</Authors>
     <Description>Middleware ASP.NET Core de gestion des exceptions : réponse JSON avec TraceId, logs Serilog vers fichier, SQL Server et e-mail.</Description>
     <PackageTags>exception;middleware;aspnetcore;serilog</PackageTags>
