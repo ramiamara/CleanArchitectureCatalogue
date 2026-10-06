@@ -1,4 +1,4 @@
-﻿# Catalogue API
+Bonjour à tous. Aujourd'hui, je vais vous faire un point sur l'avancement de l'application Animation Commerciale. Lors de notre dernière présentation, nous avions vu ensemble le parcours d'ajout d'un accompagnement animateur. Je vais refaire rapidement ce parcours aujourd'hui pour nous remettre dans le contexte, puis je vous montrerai les nouvelles fonctionnalités que nous avons ajoutées, notamment les filtres de la matrice, la vue calendrier et la partie évaluation de l'animateur par son manager. L'objectif est de vous montrer le parcours de bout en bout et surtout de récupérer vos retours métier. »﻿# Catalogue API
 
 API REST en **.NET 9** suivant les principes de la **Clean Architecture**. Elle permet de gérer des catalogues et leurs produits associes, avec authentification JWT, cache memoire, rate limiting et journalisation centralisee des exceptions.
 
