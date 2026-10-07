@@ -1,0 +1,22 @@
+<section class="card">
+  <div><span class="eyebrow">Conseiller</span><b>{{ conseiller()?.prenom }} {{ conseiller()?.nom }}</b><small>{{ conseiller()?.metier }}</small></div>
+  <div><span class="eyebrow">Agence</span><b>{{ agence()?.libelle }}</b><small>DA : {{ agence()?.directeur }}</small></div>
+  <div><span class="eyebrow">Secteur</span><b>{{ secteur()?.libelle }}</b><small>DS : {{ secteur()?.directeur }}</small></div>
+  <div><span class="eyebrow">Animateur</span><b>{{ animateur()?.prenom }} {{ animateur()?.nom }}</b></div>
+  <div>
+    <span class="eyebrow">Période</span>
+    <b>{{ coaching().dateDebut | dateFr }} → {{ coaching().dateFin | dateFr }}</b>
+    <small>{{ coaching().sessions.length }} journées · {{ coaching().duree === 'LONG' ? 'Long' : 'Court' }}</small>
+  </div>
+  <div>
+    <span class="eyebrow">Statut</span>
+    <span class="chip" [class.pos]="coaching().statut === 'TERMINE'" [class.warn]="coaching().statut === 'EN_COURS'">
+      {{ coaching().statut === 'TERMINE' ? 'Terminé' : 'En cours' }}
+    </span>
+  </div>
+  <div class="score">
+    <span class="eyebrow">Indicateurs positifs</span>
+    <b class="ratio">{{ positifs() }}<span>/{{ total() }}</span></b>
+    <small class="pos">{{ ptsMoyen() | pts }} en moyenne</small>
+  </div>
+</section>

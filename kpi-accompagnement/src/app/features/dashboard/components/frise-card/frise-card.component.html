@@ -1,0 +1,24 @@
+<section class="card">
+  <div class="card-head">
+    <div>
+      <h2>Périmètre de calcul des coachings</h2>
+      <div class="sub">Chaque barre = un coaching (date de début → date de fin). La zone encadrée = période filtrée.</div>
+    </div>
+    <button class="btn ghost" (click)="ouvert.set(!ouvert())" [attr.aria-expanded]="ouvert()">{{ ouvert() ? 'Masquer' : 'Afficher' }}</button>
+  </div>
+
+  @if (ouvert()) {
+    <div class="card-body">
+      <div class="legende">
+        <span><i [style.background]="couleur.resultats"></i>Pris en compte (pilotage + résultats)</span>
+        @if (avecEnCours()) { <span><i [style.background]="couleur.pilotage"></i>Pilotage uniquement (en cours)</span> }
+        <span><i [style.background]="couleur.exclu"></i>Exclu du calcul</span>
+      </div>
+      @if (items().length) {
+        <app-chart [config]="graphique()" [hauteur]="hauteur()" description="Frise des coachings" />
+      } @else {
+        <div class="empty">Aucun coaching pour ces filtres</div>
+      }
+    </div>
+  }
+</section>

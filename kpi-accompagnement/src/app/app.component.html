@@ -1,0 +1,13 @@
+<app-header />
+
+<main>
+  @if (data.charge()) {
+    <router-outlet />
+  } @else {
+    <div class="chargement">Chargement des données…</div>
+  }
+</main>
+
+@if (auth.estConnecte()) {
+  <app-filtres-panel />
+}

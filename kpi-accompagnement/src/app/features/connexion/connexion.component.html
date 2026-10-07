@@ -1,0 +1,18 @@
+<section class="connexion">
+  <h1>Connexion</h1>
+  <p class="intro">Maquette : choisissez un compte de démonstration. Le profil détermine le périmètre des KPI affichés.</p>
+
+  <div class="comptes">
+    @for (u of auth.comptesDemo; track u.id) {
+      <button class="compte card" (click)="connecter(u.id)">
+        <span class="avatar">{{ u.nomComplet.charAt(0) }}</span>
+        <span class="infos">
+          <span class="nom">{{ u.nomComplet }}</span>
+          <span class="chip">{{ profils[u.profil].libelle }}</span>
+          <span class="desc">{{ descriptions[u.profil] }}</span>
+        </span>
+        <span class="fleche" aria-hidden="true">→</span>
+      </button>
+    }
+  </div>
+</section>

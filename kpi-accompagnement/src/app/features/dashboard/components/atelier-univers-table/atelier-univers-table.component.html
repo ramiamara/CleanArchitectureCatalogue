@@ -1,0 +1,19 @@
+<h4>Univers de besoin <span class="ref">% d'atteinte</span></h4>
+<table class="data">
+  <thead>
+    <tr>
+      <th></th>
+      <th class="num">{{ dateJ() | dateFr }} (jour J)</th>
+      <th class="num">{{ dateJ2() | dateFr }} (+2 mois)</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (l of lignes(); track l.code) {
+      <tr>
+        <td>{{ l.libelle }}</td>
+        <td class="num">{{ l.valeurJ }} %</td>
+        <td class="num">{{ l.valeurJ2 }} % <b [class]="l.pts | signe">({{ l.pts | pts }})</b></td>
+      </tr>
+    }
+  </tbody>
+</table>

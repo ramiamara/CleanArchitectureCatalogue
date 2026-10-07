@@ -1,0 +1,165 @@
+/* ------------------------------------------------------------------ */
+/*  Design tokens                                                      */
+/* ------------------------------------------------------------------ */
+:root {
+  --navy: #17375e;
+  --navy-700: #0f2340;
+  --navy-50: #eef3f9;
+  --individuel: #e8762c;
+  --collectif: #1b9fd8;
+  --pos: #1f8f4e;
+  --pos-bg: #e7f5ec;
+  --neg: #d4521b;
+  --neg-bg: #fdeee6;
+  --warn: #c98a06;
+  --warn-bg: #fdf5df;
+  --ink: #1d2733;
+  --ink-2: #4a5566;
+  --ink-3: #7b8696;
+  --line: #dfe5ec;
+  --surface: #ffffff;
+  --bg: #f3f5f8;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgb(15 35 64 / 6%), 0 2px 8px rgb(15 35 64 / 5%);
+  --font: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+a { color: var(--navy); }
+
+h1, h2, h3, h4 { margin: 0; line-height: 1.2; }
+
+button { font-family: inherit; }
+
+/* ------------------------------------------------------------------ */
+/*  Primitives                                                         */
+/* ------------------------------------------------------------------ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px 0;
+
+  h2 { font-size: 17px; font-weight: 700; color: var(--navy); }
+  .sub { color: var(--ink-3); font-size: 13px; margin-top: 2px; }
+}
+
+.card-body { padding: 16px 20px 20px; }
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--navy-50);
+  color: var(--navy);
+  white-space: nowrap;
+  &.pos { background: var(--pos-bg); color: var(--pos); }
+  &.neg { background: var(--neg-bg); color: var(--neg); }
+  &.warn { background: var(--warn-bg); color: var(--warn); }
+  &.mono { font-family: var(--mono); font-size: 11px; }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  &:hover { border-color: var(--navy); }
+  &.primary { background: var(--navy); color: #fff; border-color: var(--navy); &:hover { background: var(--navy-700); } }
+  &.ghost { border-color: transparent; background: transparent; &:hover { background: var(--navy-50); } }
+}
+
+.link {
+  color: var(--navy);
+  font-weight: 600;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.pos { color: var(--pos); }
+.neg { color: var(--neg); }
+.warn { color: var(--warn); }
+.zero { color: var(--ink-3); }
+
+.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--ink-3);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-2);
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--line);
+    white-space: nowrap;
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  td.num, th.num { text-align: right; }
+  tr.total td { font-weight: 700; background: var(--navy-50); }
+}
+
+select, input[type='date'] {
+  font-family: inherit;
+  font-size: 14px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  width: 100%;
+  &:focus { outline: 2px solid color-mix(in srgb, var(--navy) 30%, transparent); border-color: var(--navy); }
+}
+
+:focus-visible { outline: 2px solid var(--collectif); outline-offset: 2px; }

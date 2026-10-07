@@ -1,0 +1,11 @@
+:host { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.kpi { display: flex; align-items: center; gap: 18px; border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; }
+.grand { font-size: 30px; font-weight: 800; color: var(--navy); line-height: 1.1; &.pos { color: var(--pos); } }
+.libelle { font-weight: 600; color: var(--ink-2); }
+.regle { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.donut {
+  position: relative; width: 84px; flex: none;
+  span { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-size: 18px; color: var(--navy); small { font-size: 11px; } }
+}
+.icone { width: 84px; height: 84px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--pos-bg); color: var(--pos); }
+@media (max-width: 760px) { :host { grid-template-columns: 1fr; } }

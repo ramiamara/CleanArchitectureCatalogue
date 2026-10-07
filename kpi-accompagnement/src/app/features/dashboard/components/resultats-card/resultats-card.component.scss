@@ -1,0 +1,13 @@
+.onglets {
+  display: flex; gap: 4px; padding: 14px 20px 0; border-bottom: 1px solid var(--line);
+  button {
+    position: relative; border: 0; background: transparent; padding: 10px 14px 12px; cursor: pointer;
+    font-size: 15px; font-weight: 700; color: var(--ink-3);
+    &::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; }
+    &.on.individuel { color: var(--individuel); &::after { background: var(--individuel); } }
+    &.on.collectif { color: var(--collectif); &::after { background: var(--collectif); } }
+    &:disabled { opacity: .4; cursor: not-allowed; }
+    &:not(.on):not(:disabled):hover { color: var(--ink); }
+  }
+}
+.blocs { display: grid; gap: 16px; margin: 20px 0; }

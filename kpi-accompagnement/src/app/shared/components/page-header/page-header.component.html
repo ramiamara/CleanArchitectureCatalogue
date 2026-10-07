@@ -1,0 +1,11 @@
+@if (retour()) {
+  <a class="link retour" routerLink="/">← Retour au tableau de bord</a>
+}
+<div class="ligne">
+  <div>
+    <span class="chip mono">{{ code() }}</span>
+    <h1>{{ titre() }}</h1>
+    @if (sousTitre()) { <p>{{ sousTitre() }}</p> }
+  </div>
+  <ng-content />
+</div>

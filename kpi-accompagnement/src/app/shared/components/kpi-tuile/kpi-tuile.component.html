@@ -1,0 +1,5 @@
+<div class="tuile" [class]="tuile().pts | signe" [title]="tuile().libelle + ' : ' + tuile().pctDebut + ' % → ' + tuile().pctFin + ' %'">
+  <div class="nom">{{ tuile().libelle }}</div>
+  <div class="pts">{{ tuile().pts | pts }}</div>
+  <div class="evo">{{ tuile().pctDebut }} % → {{ tuile().pctFin }} %</div>
+</div>

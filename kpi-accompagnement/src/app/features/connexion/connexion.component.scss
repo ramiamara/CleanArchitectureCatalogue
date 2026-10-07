@@ -1,0 +1,23 @@
+.connexion { max-width: 760px; margin: 24px auto; }
+h1 { font-size: 26px; font-weight: 800; color: var(--navy); }
+.intro { color: var(--ink-2); margin: 6px 0 20px; }
+
+.comptes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.compte {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; text-align: left;
+  font: inherit; color: inherit; cursor: pointer; transition: border-color .15s, transform .15s;
+  &:hover { border-color: var(--navy); transform: translateY(-1px); .fleche { opacity: 1; } }
+}
+
+.avatar {
+  flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--navy); color: #fff; font-weight: 700;
+}
+
+.infos { display: grid; gap: 4px; justify-items: start; }
+.nom { font-weight: 700; }
+.desc { font-size: 12px; color: var(--ink-3); }
+.fleche { margin-left: auto; color: var(--navy); font-weight: 700; opacity: .3; }
+
+@media (max-width: 640px) { .comptes { grid-template-columns: 1fr; } }

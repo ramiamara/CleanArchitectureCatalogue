@@ -1,0 +1,40 @@
+<article class="bloc">
+  <header class="entete">
+    <a class="titre" [routerLink]="['/coaching', bloc().coachings[0].id]" title="Détail KPI de ce coaching (page KPI-03)">
+      Accompagnement individuel {{ bloc().typologie.libelle }}
+    </a>
+    <span class="meta">{{ bloc().coachings.length }} coaching(s) terminé(s)</span>
+    <div class="vues" role="group" aria-label="Affichage">
+      <button [class.on]="vue() === 'paves'" (click)="vue.set('paves')">Pavés</button>
+      <button [class.on]="vue() === 'graphique'" (click)="vue.set('graphique')">Graphique</button>
+    </div>
+  </header>
+
+  <div class="contenu">
+    <app-score-ratio [positifs]="bloc().nbPositifs" [total]="bloc().nbTotal" />
+
+    <div class="corps">
+      @if (vue() === 'paves') {
+        <h4>Activité</h4>
+        <div class="tuiles">
+          @for (t of bloc().activite; track t.code) { <app-kpi-tuile [tuile]="t" /> }
+        </div>
+        <h4>Univers de besoin</h4>
+        <div class="tuiles">
+          @for (t of bloc().universBesoin; track t.code) { <app-kpi-tuile [tuile]="t" /> }
+        </div>
+      } @else {
+        <app-chart [config]="graphique()" hauteur="260px" description="Atteinte début vs fin de coaching" />
+      }
+    </div>
+  </div>
+
+  @if (afficherCoachings()) {
+    <footer>
+      <span class="eyebrow">Détail par coaching</span>
+      @for (l of liens(); track l.id) {
+        <a class="chip" [routerLink]="['/coaching', l.id]">{{ l.libelle }}</a>
+      }
+    </footer>
+  }
+</article>

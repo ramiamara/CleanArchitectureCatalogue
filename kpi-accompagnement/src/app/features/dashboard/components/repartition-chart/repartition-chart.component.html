@@ -1,0 +1,5 @@
+<app-chart [config]="config()" hauteur="54px" description="Répartition individuels / collectifs" />
+<div class="legende">
+  <span><i class="ind"></i>Individuels <b>{{ vm().nbCoachings }}</b> ({{ vm().pctIndividuels }} %)</span>
+  <span><i class="col"></i>Collectifs <b>{{ vm().nbParticipations }}</b> ({{ vm().pctCollectifs }} %)</span>
+</div>

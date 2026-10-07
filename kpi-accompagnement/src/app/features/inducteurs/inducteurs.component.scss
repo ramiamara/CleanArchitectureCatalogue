@@ -1,0 +1,4 @@
+:host { display: grid; gap: 16px; }
+.grille { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.large { grid-column: 1 / -1; }
+@media (max-width: 900px) { .grille { grid-template-columns: 1fr; } }

@@ -1,0 +1,50 @@
+<section class="card">
+  <div class="card-head">
+    <div>
+      <h2>Résultats des accompagnements</h2>
+      <div class="sub">Progression = % d'atteinte en fin − % d'atteinte en début · seuls les accompagnements <b>terminés</b> sur la période sont pris en compte</div>
+    </div>
+  </div>
+
+  <div class="onglets" role="tablist">
+    <button role="tab" class="individuel" [class.on]="onglet() === 'individuel'" [attr.aria-selected]="onglet() === 'individuel'"
+            [disabled]="store.filtres().type === 'ATELIER'" (click)="onglet.set('individuel')">
+      Accompagnement individuel
+    </button>
+    <button role="tab" class="collectif" [class.on]="onglet() === 'collectif'" [attr.aria-selected]="onglet() === 'collectif'"
+            [disabled]="store.filtres().type === 'COACHING'" (click)="onglet.set('collectif')">
+      Accompagnement collectif
+    </button>
+  </div>
+
+  <div class="card-body">
+    @if (synthese(); as s) {
+      <app-synthese-resultats [pctProgression]="s.pctProgression" [ptsMoyen]="s.ptsMoyen" [regleCalcul]="regleCalcul()" />
+
+      <div class="blocs">
+        @if (onglet() === 'individuel') {
+          @for (b of store.resultatIndividuel()?.blocs; track b.typologie.code) {
+            <app-bloc-coaching [bloc]="b" [afficherCoachings]="!estConseiller()" />
+          } @empty {
+            <div class="empty">Aucun coaching terminé sur la période pour ces filtres.</div>
+          }
+        } @else {
+          @for (b of store.resultatCollectif()?.blocs; track b.typologie.code) {
+            <app-bloc-atelier [bloc]="b" />
+          } @empty {
+            <div class="empty">Aucun atelier terminé sur la période pour ces filtres.</div>
+          }
+        }
+      </div>
+
+      @if (libelleEntite() && s.detail.length) {
+        <app-detail-entites
+          [lignes]="s.detail"
+          [libelleEntite]="libelleEntite()!"
+          [libelleTotal]="libelleTotal()"
+          [pctTotal]="s.pctProgression"
+          [ptsTotal]="s.ptsMoyen" />
+      }
+    }
+  </div>
+</section>

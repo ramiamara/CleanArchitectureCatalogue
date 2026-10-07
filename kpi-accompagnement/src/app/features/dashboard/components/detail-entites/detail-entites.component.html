@@ -1,0 +1,41 @@
+<section>
+  <div class="titre">
+    <h3>Détail par {{ libelleEntite().toLowerCase() }}</h3>
+    <span>% = moyenne des % de chaque conseiller · points = moyenne des seuls indicateurs positifs</span>
+  </div>
+
+  <div class="grille">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>{{ libelleEntite() }}</th>
+          <th class="num">Accomp.</th>
+          <th class="num">Indic. positifs</th>
+          <th class="num">% en progression</th>
+          <th class="num">Pts moyens</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (l of lignes(); track l.entite.id) {
+          <tr>
+            <td>
+              {{ l.entite.libelle }}
+              @if (l.entite.sousLibelle) { <small>{{ l.entite.sousLibelle }}</small> }
+            </td>
+            <td class="num">{{ l.nbAccompagnements }}</td>
+            <td class="num">{{ l.nbPositifs }} / {{ l.nbIndicateurs }}</td>
+            <td class="num"><span class="barre"><span [style.width.%]="l.pctProgression"></span></span>{{ l.pctProgression }} %</td>
+            <td class="num pos">{{ l.ptsMoyen | pts }}</td>
+          </tr>
+        }
+        <tr class="total">
+          <td colspan="3">{{ libelleTotal() }}</td>
+          <td class="num">{{ pctTotal() }} %</td>
+          <td class="num">{{ ptsTotal() | pts }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <app-chart [config]="graphique()" hauteur="260px" description="% d'indicateurs en progression par entité" />
+  </div>
+</section>

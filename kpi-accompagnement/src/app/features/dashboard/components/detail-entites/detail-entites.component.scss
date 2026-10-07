@@ -1,0 +1,9 @@
+section { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.titre { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 10px;
+  h3 { font-size: 15px; color: var(--navy); }
+  span { font-size: 12px; color: var(--ink-3); } }
+.grille { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+small { display: block; font-size: 11px; color: var(--ink-3); }
+.barre { display: inline-block; width: 60px; height: 6px; margin-right: 8px; border-radius: 3px; background: var(--line); vertical-align: middle; overflow: hidden;
+  span { display: block; height: 100%; background: var(--pos); } }
+@media (max-width: 1000px) { .grille { grid-template-columns: 1fr; } }

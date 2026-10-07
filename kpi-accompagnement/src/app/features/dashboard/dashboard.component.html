@@ -1,0 +1,11 @@
+<app-page-header [code]="codePage()" [titre]="titre()" [sousTitre]="perimetre.libelle()" />
+
+@if (store.pilotage(); as pilotage) {
+  <app-pilotage-card [vm]="pilotage" [avecEnCours]="auth.config().pilotageAvecEnCours" />
+}
+
+<app-resultats-card />
+
+@if (store.filtres().type !== 'ATELIER') {
+  <app-frise-card [items]="store.frise()" [filtres]="store.filtres()" [avecEnCours]="auth.config().pilotageAvecEnCours" />
+}

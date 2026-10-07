@@ -1,0 +1,56 @@
+<section class="card">
+  <div class="card-head">
+    <div>
+      <h2>Détail KPI par journée de coaching</h2>
+      <div class="sub">Réalisé / objectif et % d'atteinte · la progression compare la 1ère et la dernière journée réalisées</div>
+    </div>
+    <div class="legende">
+      <span class="chip pos">≥ 100 %</span><span class="chip warn">80 – 99 %</span><span class="chip neg">&lt; 80 %</span>
+    </div>
+  </div>
+
+  <div class="card-body defilement">
+    <table>
+      <thead>
+        <tr>
+          <th class="kpi">KPI</th>
+          @for (s of sessions(); track s.date; let i = $index) {
+            <th [class.borne]="estBorne(i)" [class.future]="!s.realisee">
+              <div>{{ s.date | dateFr }}</div>
+              @if (libelleBorne(i)) { <span class="tag">{{ libelleBorne(i) }}</span> }
+              @if (!s.realisee) { <span class="tag planifiee">Planifiée</span> }
+            </th>
+          }
+          <th class="progression">Progression</th>
+        </tr>
+      </thead>
+
+      @for (g of groupes(); track g.titre) {
+        <tbody>
+          <tr class="groupe"><td [attr.colspan]="sessions().length + 2">{{ g.titre }}</td></tr>
+          @for (l of g.lignes; track l.code) {
+            <tr>
+              <td class="kpi">{{ libelles[l.code].libelle }}</td>
+              @for (s of sessions(); track s.date; let i = $index) {
+                <td [class.borne]="estBorne(i)" [class.future]="!s.realisee">
+                  @if (s.realisee) {
+                    <span class="valeur">{{ s.mesures[l.code].realise }} <i>/ {{ s.mesures[l.code].objectif }}</i></span>
+                    <span class="pct" [class]="pct(s.mesures[l.code].realise, s.mesures[l.code].objectif) | atteinte">
+                      {{ pct(s.mesures[l.code].realise, s.mesures[l.code].objectif) }} %
+                    </span>
+                  } @else {
+                    <span class="valeur">— <i>/ {{ s.mesures[l.code].objectif }}</i></span>
+                  }
+                </td>
+              }
+              <td class="progression" [class]="l.progression.pts | signe">
+                <b>{{ l.progression.pts | pts }}</b>
+                <small>{{ l.progression.pctDebut }} → {{ l.progression.pctFin }} %</small>
+              </td>
+            </tr>
+          }
+        </tbody>
+      }
+    </table>
+  </div>
+</section>

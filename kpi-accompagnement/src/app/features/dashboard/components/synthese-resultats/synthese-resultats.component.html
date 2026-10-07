@@ -1,0 +1,22 @@
+<div class="kpi">
+  <div class="donut">
+    <app-chart [config]="donut()" hauteur="84px" description="Pourcentage d'indicateurs en progression" />
+    <span>{{ pctProgression() }}<small>%</small></span>
+  </div>
+  <div>
+    <div class="grand">{{ pctProgression() }} %</div>
+    <div class="libelle">Indicateurs en progression</div>
+    <div class="regle">{{ regleCalcul() }}</div>
+  </div>
+</div>
+
+<div class="kpi">
+  <div class="icone" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="30" height="30"><path d="M3 17l6-6 4 4 8-8M15 7h6v6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </div>
+  <div>
+    <div class="grand pos">{{ ptsMoyen() | pts }}</div>
+    <div class="libelle">En moyenne sur les indicateurs en progression</div>
+    <div class="regle">Les indicateurs négatifs ne sont pas pris en compte</div>
+  </div>
+</div>

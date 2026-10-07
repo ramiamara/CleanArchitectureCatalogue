@@ -1,0 +1,35 @@
+<app-page-header
+  [code]="codePage()"
+  titre="Zoom vers inducteurs"
+  sousTitre="Décomposition des journées consommées (J/H) et des accompagnements sur la période filtrée."
+  [retour]="true" />
+
+@if (store.inducteurs(); as ind) {
+  <div class="grille">
+    <section class="card large">
+      <div class="card-head"><div><h2>Journées consommées par mois (J/H)</h2><div class="sub">Coaching : 1 journée = 1 J/H · Atelier : participants × jours</div></div></div>
+      <div class="card-body"><app-chart [config]="jhParMois()" hauteur="280px" description="J/H par mois" /></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><div><h2>Accompagnements par libellé</h2><div class="sub">Coachings et participations aux ateliers</div></div></div>
+      <div class="card-body"><app-chart [config]="parTypologie()" [hauteur]="hauteurTypologie()" description="Accompagnements par libellé" /></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head"><div><h2>Durée d'accompagnement</h2><div class="sub">Court vs long</div></div></div>
+      <div class="card-body">
+        @if (ind.court + ind.long) {
+          <app-chart [config]="parDuree()" hauteur="240px" description="Répartition court / long" />
+        } @else {
+          <div class="empty">Aucune donnée</div>
+        }
+      </div>
+    </section>
+
+    <section class="card large">
+      <div class="card-head"><div><h2>Journées (J/H) par {{ libelleEntite() }}</h2><div class="sub">Individuel vs collectif</div></div></div>
+      <div class="card-body"><app-chart [config]="jhParEntite()" [hauteur]="hauteurEntite()" description="J/H par entité" /></div>
+    </section>
+  </div>
+}

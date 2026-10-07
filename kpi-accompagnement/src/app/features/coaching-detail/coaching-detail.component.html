@@ -1,0 +1,20 @@
+@if (coaching(); as c) {
+  <app-page-header [code]="codePage()" [titre]="'Matrice d\'accompagnement · ' + typologie()?.libelle" [retour]="true">
+    @if (autres().length > 1) {
+      <label class="selecteur">
+        <span class="eyebrow">Coaching</span>
+        <select (change)="changerCoaching($event)" aria-label="Changer de coaching">
+          @for (a of autres(); track a.id) {
+            <option [value]="a.id" [selected]="a.id === c.id">{{ a.libelle }}</option>
+          }
+        </select>
+      </label>
+    }
+  </app-page-header>
+
+  <app-coaching-infos [coaching]="c" [positifs]="synthese().positifs" [total]="synthese().total" [ptsMoyen]="synthese().ptsMoyen" />
+  <app-coaching-evolution [coaching]="c" [groupes]="groupes()" />
+  <app-coaching-matrice [coaching]="c" [groupes]="groupes()" />
+} @else {
+  <app-page-header code="KPI-03" titre="Coaching introuvable" sousTitre="Ce coaching n'existe pas ou ne fait pas partie de votre périmètre." [retour]="true" />
+}

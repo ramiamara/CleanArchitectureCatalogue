@@ -1,0 +1,8 @@
+h4 { font-size: 13px; margin: 0 0 6px; &:not(:first-child) { margin-top: 12px; } }
+.tuiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
+footer {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 10px 16px; border-top: 1px solid var(--line); background: #fafbfd;
+  .eyebrow { margin-right: 6px; }
+  .chip { text-decoration: none; &:hover { background: #dde7f3; } }
+}

@@ -1,0 +1,44 @@
+<section class="card">
+  <div class="card-head">
+    <div>
+      <h2>Pilotage des accompagnements individuels et collectifs</h2>
+      <div class="sub">
+        @if (avecEnCours()) {
+          Coachings et ateliers <b>en cours</b> et <b>terminés</b> dont la date de début ou de fin est dans la période
+        } @else {
+          Coachings <b>terminés</b> et ateliers <b>réalisés</b> dont la date (de fin) est dans la période
+        }
+      </div>
+    </div>
+    <a class="link zoom" routerLink="/inducteurs">Zoom vers inducteurs →</a>
+  </div>
+
+  <div class="card-body grille">
+    <div class="stat">
+      <div class="eyebrow">Nombre d'accompagnements</div>
+      <div class="valeur">{{ vm().nbAccompagnements }}</div>
+      <div class="pied">{{ vm().nbCoachings }} coaching(s) · {{ vm().nbParticipations }} participation(s) à {{ vm().nbAteliers }} atelier(s)</div>
+    </div>
+
+    <div class="stat">
+      <div class="eyebrow">Nombre de journées (J/H)</div>
+      <div class="valeur">{{ vm().nbJourneesJH | number: '1.0-1' }}</div>
+      <div class="pied">Journées terminées · coaching 1 j = 1 J/H · atelier = participants × jours (½ j si matin / après-midi)</div>
+    </div>
+
+    <div class="stat">
+      <div class="eyebrow">Collaborateurs accompagnés</div>
+      <div class="valeur">{{ vm().nbCollaborateurs }}</div>
+      <div class="pied">Ayant débuté un parcours (individuel ou collectif)</div>
+    </div>
+
+    <div class="stat">
+      <div class="eyebrow">Répartition des accompagnements</div>
+      @if (vm().nbAccompagnements) {
+        <app-repartition-chart [vm]="vm()" />
+      } @else {
+        <div class="empty">Aucun accompagnement sur la période</div>
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+<h4>Activité</h4>
+<table class="data">
+  <thead>
+    <tr>
+      <th></th>
+      <th class="num">{{ dateJ() | dateFr }} (jour J)</th>
+      <th class="num">Vs. référentiel</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (l of lignes(); track l.code) {
+      <tr>
+        <td>{{ l.libelle }}</td>
+        <td class="num">{{ l.valeurJ }}</td>
+        <td class="num"><b [class]="l.pts | signe">{{ l.pts | pts }}</b> <span class="ref">(réf. {{ l.referentiel }})</span></td>
+      </tr>
+    }
+  </tbody>
+</table>

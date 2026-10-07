@@ -1,0 +1,24 @@
+<article class="bloc">
+  <header class="entete collectif">
+    <span class="titre">Atelier collectif · {{ bloc().typologie.libelle }}</span>
+    <span class="meta">{{ bloc().nbAteliers }} atelier(s) · {{ bloc().nbParticipants }} participant(s)</span>
+    <div class="vues" role="group" aria-label="Affichage">
+      <button [class.on]="vue() === 'tableaux'" (click)="vue.set('tableaux')">Tableaux</button>
+      <button [class.on]="vue() === 'graphique'" (click)="vue.set('graphique')">Graphique</button>
+    </div>
+  </header>
+
+  <div class="contenu">
+    <app-score-ratio [positifs]="bloc().nbPositifs" [total]="bloc().nbTotal" />
+
+    <div class="corps deux-colonnes">
+      @if (vue() === 'tableaux') {
+        <app-atelier-activite-table [lignes]="bloc().activite" [dateJ]="bloc().dateJ" />
+        <app-atelier-univers-table [lignes]="bloc().universBesoin" [dateJ]="bloc().dateJ" [dateJ2]="bloc().dateJ2" />
+      } @else {
+        <app-chart [config]="graphiqueActivite()" hauteur="240px" description="Activité vs référentiel" />
+        <app-chart [config]="graphiqueUnivers()" hauteur="240px" description="Univers de besoin J vs J+2 mois" />
+      }
+    </div>
+  </div>
+</article>

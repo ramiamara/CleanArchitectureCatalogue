@@ -1,0 +1,32 @@
+.legende { display: flex; gap: 6px; }
+.defilement { overflow-x: auto; }
+
+table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+
+thead th {
+  background: var(--navy); color: #fff; font-weight: 600; vertical-align: top;
+  &:first-child { border-top-left-radius: 8px; }
+  &:last-child { border-top-right-radius: 8px; }
+  &.borne { background: #24508a; }
+  &.future { background: #5d7393; }
+}
+
+.kpi { text-align: left; font-weight: 600; position: sticky; left: 0; background: #fff; min-width: 200px; }
+thead .kpi { background: var(--navy); }
+
+.tag {
+  display: inline-block; margin-top: 3px; padding: 1px 6px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  background: var(--individuel); color: #fff;
+  &.planifiee { background: rgb(255 255 255 / 20%); }
+}
+
+tr.groupe td { text-align: left; background: var(--navy-50); color: var(--navy); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+td.borne { background: #f6f9fd; }
+td.future { color: var(--ink-3); background: repeating-linear-gradient(45deg, #fafbfc, #fafbfc 6px, #f3f5f8 6px, #f3f5f8 12px); }
+
+.valeur { display: block; i { color: var(--ink-3); font-style: normal; } }
+.pct { display: block; font-weight: 700; font-size: 12px; }
+
+td.progression { border-left: 2px solid var(--line); b { display: block; font-size: 15px; } small { color: var(--ink-3); font-size: 11px; } }

@@ -1,0 +1,35 @@
+<header>
+  <a class="marque" routerLink="/">
+    <span class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" /></svg>
+    </span>
+    <span>
+      <span class="titre">Pilotage des accompagnements</span>
+      <span class="perimetre">{{ perimetre.libelle() }}</span>
+    </span>
+  </a>
+
+  @if (auth.utilisateur(); as u) {
+    <div class="actions">
+      <button class="periode" (click)="store.filtresOuverts.set(true)" title="Modifier la période">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none" /><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" /></svg>
+        {{ store.filtres().dateDebut | dateFr }} → {{ store.filtres().dateFin | dateFr }}
+      </button>
+
+      <button class="btn filtres" (click)="store.filtresOuverts.set(true)">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round" /></svg>
+        Filtres
+        @if (store.nbFiltresActifs()) { <span class="badge">{{ store.nbFiltresActifs() }}</span> }
+      </button>
+
+      <div class="utilisateur">
+        <span class="avatar">{{ u.nomComplet.charAt(0) }}</span>
+        <span>
+          <span class="nom">{{ u.nomComplet }}</span>
+          <span class="profil">{{ auth.config().libelle }}</span>
+        </span>
+        <button class="deconnexion" (click)="deconnecter()" title="Changer d'utilisateur">Changer</button>
+      </div>
+    </div>
+  }
+</header>

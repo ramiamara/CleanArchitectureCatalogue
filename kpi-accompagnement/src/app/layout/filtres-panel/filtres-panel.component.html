@@ -1,0 +1,92 @@
+@if (store.filtresOuverts()) {
+  <div class="backdrop" (click)="fermer()"></div>
+  <aside class="panel" role="dialog" aria-modal="true" aria-labelledby="titre-filtres">
+    <header>
+      <h2 id="titre-filtres">Filtres</h2>
+      <button class="btn ghost" (click)="fermer()" aria-label="Fermer">✕</button>
+    </header>
+
+    <div class="body">
+      <fieldset>
+        <legend>Période</legend>
+        <div class="row">
+          <label>Date début<input type="date" [value]="brouillon().dateDebut" (change)="modifier({ dateDebut: valeur($event) })" /></label>
+          <label>Date fin<input type="date" [value]="brouillon().dateFin" (change)="modifier({ dateFin: valeur($event) })" /></label>
+        </div>
+        @if (periodeInvalide()) { <p class="err">La date de début doit précéder la date de fin.</p> }
+        <div class="presets">
+          <button class="chip" (click)="modifier({ dateDebut: '2026-01-01', dateFin: '2026-12-31' })">Année 2026</button>
+          <button class="chip" (click)="modifier({ dateDebut: '2026-01-01', dateFin: '2026-06-30' })">S1 2026</button>
+          <button class="chip" (click)="modifier({ dateDebut: '2026-07-01', dateFin: '2026-12-31' })">S2 2026</button>
+          <button class="chip" (click)="modifier({ dateDebut: '2025-10-01', dateFin: '2026-09-30' })">12 derniers mois</button>
+        </div>
+      </fieldset>
+
+      @if (libelleEntite(); as libelle) {
+        <fieldset>
+          <legend>{{ libelle }}</legend>
+          <select (change)="modifier({ entiteId: valeur($event) })">
+            <option value="TOUS" [selected]="brouillon().entiteId === 'TOUS'">Tous</option>
+            @for (e of perimetre.entitesFiltrables(); track e.id) {
+              <option [value]="e.id" [selected]="brouillon().entiteId === e.id">{{ e.libelle }}</option>
+            }
+          </select>
+        </fieldset>
+
+        <fieldset>
+          <legend>Métier</legend>
+          <div class="seg">
+            <button [class.on]="brouillon().metier === 'TOUS'" (click)="modifier({ metier: 'TOUS' })">Tous</button>
+            <button [class.on]="brouillon().metier === 'PART'" (click)="modifier({ metier: 'PART' })">PART</button>
+            <button [class.on]="brouillon().metier === 'PRO'" (click)="modifier({ metier: 'PRO' })">PRO</button>
+          </div>
+          <p class="hint">⚠ Typage métier des conseillers peu fiable — filtre susceptible d'être supprimé.</p>
+        </fieldset>
+      }
+
+      <fieldset>
+        <legend>Type d'accompagnement</legend>
+        <div class="seg">
+          <button [class.on]="brouillon().type === 'TOUS'" (click)="modifier({ type: 'TOUS' })">Tous</button>
+          <button [class.on]="brouillon().type === 'COACHING'" (click)="modifier({ type: 'COACHING' })">Coaching individuel</button>
+          <button [class.on]="brouillon().type === 'ATELIER'" (click)="modifier({ type: 'ATELIER' })">Atelier collectif</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Libellé de l'accompagnement</legend>
+        <select (change)="modifier({ typologie: valeur($event) })">
+          <option value="TOUS" [selected]="brouillon().typologie === 'TOUS'">Tous</option>
+          @if (brouillon().type !== 'ATELIER') {
+            <optgroup label="Coaching individuel">
+              @for (t of typologiesCoaching; track t.code) {
+                <option [value]="t.code" [selected]="brouillon().typologie === t.code">{{ t.libelle }}</option>
+              }
+            </optgroup>
+          }
+          @if (brouillon().type !== 'COACHING') {
+            <optgroup label="Atelier collectif">
+              @for (t of typologiesAtelier; track t.code) {
+                <option [value]="t.code" [selected]="brouillon().typologie === t.code">{{ t.libelle }}</option>
+              }
+            </optgroup>
+          }
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>Durée d'accompagnement</legend>
+        <div class="seg">
+          <button [class.on]="brouillon().duree === 'TOUS'" (click)="modifier({ duree: 'TOUS' })">Toutes</button>
+          <button [class.on]="brouillon().duree === 'COURT'" (click)="modifier({ duree: 'COURT' })">Court</button>
+          <button [class.on]="brouillon().duree === 'LONG'" (click)="modifier({ duree: 'LONG' })">Long</button>
+        </div>
+      </fieldset>
+    </div>
+
+    <footer>
+      <button class="btn ghost" (click)="reinitialiser()">Réinitialiser</button>
+      <button class="btn primary" [disabled]="periodeInvalide()" (click)="appliquer()">Appliquer</button>
+    </footer>
+  </aside>
+}
