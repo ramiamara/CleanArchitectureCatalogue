@@ -161,5 +161,41 @@ Les endpoints de liste supportent la pagination :
 GET /api/catalogues?page=1&pageSize=10
 GET /api/products?page=1&pageSize=20
 ```
+-- Base des logs (adapter le nom si besoin)
+USE BpriLogsDb;
+GO
 
+IF OBJECT_ID(N'dbo.RequestLogs', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.RequestLogs
+    (
+        Id              INT IDENTITY(1,1) NOT NULL,
+        Message         NVARCHAR(MAX)  NULL,
+        [Level]         NVARCHAR(128)  NULL,
+        [TimeStamp]     DATETIME       NOT NULL,   -- UTC
+        TraceId         NVARCHAR(64)   NULL,
+        Cprj            NVARCHAR(64)   NULL,
+        ApplicationName NVARCHAR(128)  NULL,
+        EnvironmentName NVARCHAR(64)   NULL,
+        MachineName     NVARCHAR(128)  NULL,
+        HttpMethod      NVARCHAR(16)   NULL,
+        [Path]          NVARCHAR(512)  NULL,
+        QueryString     NVARCHAR(2048) NULL,
+        StatusCode      INT            NULL,
+        DurationMs      INT            NULL,
+        UserName        NVARCHAR(256)  NULL,
+        UserId          NVARCHAR(128)  NULL,
+        RequestBody     NVARCHAR(MAX)  NULL,
+        ResponseBody    NVARCHAR(MAX)  NULL,
+        CONSTRAINT PK_RequestLogs PRIMARY KEY CLUSTERED (Id)
+    );
+
+    -- Index utiles pour la plateforme de logs (filtre par projet, application, période, TraceId)
+    CREATE NONCLUSTERED INDEX IX_RequestLogs_Cprj_TimeStamp
+        ON dbo.RequestLogs (Cprj, [TimeStamp]) INCLUDE (ApplicationName, StatusCode, DurationMs);
+
+    CREATE NONCLUSTERED INDEX IX_RequestLogs_TraceId
+        ON dbo.RequestLogs (TraceId);
+END
+GO
 Reponse : `PagedResult<T>` avec `Items`, `TotalCount`, `Page`, `PageSize`.
