@@ -1,0 +1,36 @@
+<div class="head">
+  <h2 mat-dialog-title>Détail du log</h2>
+  <button mat-icon-button aria-label="Fermer" (click)="ref.close()"><app-icon [path]="icons.close" /></button>
+</div>
+<mat-dialog-content>
+  @if (d(); as d) {
+    <div class="title">
+      <span class="sev" [attr.data-sev]="d.severity">{{ label(d.severity) }}</span>
+      @if (d.statusCode) { <span class="status" [style.--c]="color(d.statusCode)">{{ d.statusCode }}</span> }
+      <strong>{{ short(d.exceptionType || d.sourceContext || '') }}</strong>
+    </div>
+    <p class="msg">{{ d.message }}</p>
+    <div class="trace">
+      <code>{{ d.traceId }}</code>
+      <button mat-icon-button aria-label="Copier le TraceId" (click)="copy(d.traceId)">
+        <app-icon [path]="copied() ? icons.check : icons.copy" />
+      </button>
+      <button mat-button (click)="go(d.traceId, 'exceptions')"><app-icon [path]="icons.search" /> Tous les logs de ce TraceId</button>
+      <button mat-button (click)="go(d.traceId, 'requests')"><app-icon [path]="icons.search" /> Requête associée</button>
+    </div>
+    <dl>
+      <dt>Date (UTC)</dt><dd>{{ d.occurredAtUtc | date: 'dd/MM/yyyy HH:mm:ss' : 'UTC' }}</dd>
+      <dt>Cprj</dt><dd>{{ d.cprj }}</dd>
+      <dt>Application</dt><dd>{{ d.applicationName }}</dd>
+      <dt>Requête</dt><dd>{{ d.httpMethod }} {{ d.path }}</dd>
+      <dt>Utilisateur</dt><dd>{{ d.userName || '—' }} @if (d.userId) { <code>({{ d.userId }})</code> }</dd>
+      <dt>Environnement</dt><dd>{{ d.environmentName || '—' }}</dd>
+      <dt>Machine</dt><dd>{{ d.machineName || '—' }}</dd>
+      <dt>Empreinte</dt><dd><code>{{ d.fingerprint || '—' }}</code></dd>
+      <dt>Type / source</dt><dd><code>{{ d.exceptionType || d.sourceContext || '—' }}</code></dd>
+    </dl>
+    @if (d.claims) { <h4>Claims JWT</h4><pre>{{ d.claims }}</pre> }
+    @if (d.exception) { <h4>Exception (stack trace)</h4><pre>{{ d.exception }}</pre> }
+    @if (d.innerException) { <h4>Exception interne</h4><pre>{{ d.innerException }}</pre> }
+  }
+</mat-dialog-content>

@@ -1,6 +1,6 @@
-using BPRI.ExceptionHandling;
 using BPRI.LogsPlatform.Back.Data;
-using BPRI.LogsPlatform.Back.Endpoints;
+using BPRI.LogsPlatform.Back.Errors;
+using BPRI.LogsPlatform.Back.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +17,13 @@ builder.Services.AddDbContext<LogsDbContext>(options =>
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
-builder.Services.AddBpriExceptionHandling(builder.Configuration);
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddControllers();
+
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 string[] origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new string[0];
 builder.Services.AddCors(options =>
@@ -30,11 +36,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseBpriExceptionHandling();
+app.UseExceptionHandler();
 app.UseCors("Web");
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
-app.MapLogsEndpoints();
-app.MapRequestsEndpoints();
+app.MapControllers();
 
 app.Run();

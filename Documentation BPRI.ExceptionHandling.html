@@ -1,0 +1,699 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Documentation BPRI.ExceptionHandling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Mise en page : colonne de lecture 880px, sommaire collant à gauche sur grand écran. Palette : encre bleutée, accent sarcelle, ambre pour les alertes. */
+  :root {
+    --bg: #f5f7f9;
+    --surface: #ffffff;
+    --fg: #17212b;
+    --muted: #55636f;
+    --line: #d9e0e6;
+    --line-strong: #9aa8b4;
+    --accent: #0b7a75;
+    --accent-soft: #dcf1ef;
+    --warn: #a15c00;
+    --warn-soft: #fbefd9;
+    --bad: #b3261e;
+    --bad-soft: #fbe3e1;
+    --code-bg: #eef2f5;
+    --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10161c; --surface: #17202a; --fg: #e4eaef; --muted: #9aa8b4; --line: #2a3744; --line-strong: #5d6f7f;
+      --accent: #4fd1c5; --accent-soft: #12353a; --warn: #f0b04a; --warn-soft: #3a2c12; --bad: #ff8a80; --bad-soft: #3d1c1a;
+      --code-bg: #0d1217; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10161c; --surface: #17202a; --fg: #e4eaef; --muted: #9aa8b4; --line: #2a3744; --line-strong: #5d6f7f;
+    --accent: #4fd1c5; --accent-soft: #12353a; --warn: #f0b04a; --warn-soft: #3a2c12; --bad: #ff8a80; --bad-soft: #3d1c1a;
+    --code-bg: #0d1217; color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--fg); font: 400 15px/1.65 var(--font-body); }
+  * { box-sizing: border-box; }
+  .page { display: grid; grid-template-columns: 220px minmax(0, 880px); gap: 48px; max-width: 1200px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 80px; }
+  nav.toc { position: sticky; top: env(safe-area-inset-top, 0px); align-self: start; padding-top: 8px; font-size: 13px; max-height: 100vh; overflow-y: auto; }
+  nav.toc .t { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+  nav.toc a { display: block; padding: 5px 0 5px 12px; color: var(--muted); text-decoration: none; border-left: 2px solid var(--line); }
+  nav.toc a:hover { color: var(--accent); border-left-color: var(--accent); }
+  main { min-width: 0; }
+  h1 { font-size: 34px; line-height: 1.15; margin: 0 0 10px; text-wrap: balance; letter-spacing: -.01em; }
+  h2 { font-size: 24px; margin: 56px 0 14px; padding-top: 18px; border-top: 1px solid var(--line); text-wrap: balance; letter-spacing: -.005em; }
+  h3 { font-size: 17px; margin: 28px 0 8px; }
+  h4 { font-size: 14px; margin: 18px 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  p { margin: 0 0 12px; max-width: 70ch; }
+  .lead { font-size: 17px; color: var(--muted); max-width: 68ch; }
+  a { color: var(--accent); }
+  code { font-family: var(--font-mono); font-size: .88em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 10px 0 16px; line-height: 1.55; }
+  pre code { background: none; padding: 0; font-size: 12.5px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+  .chip { font: 500 12px var(--font-mono); padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  .tablewrap { overflow-x: auto; margin: 8px 0 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--code-bg); white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { white-space: nowrap; }
+  td code { white-space: nowrap; }
+  td.wrap code { white-space: normal; }
+  .file { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px 6px; margin: 16px 0; }
+  .file > h3 { margin: 0 0 4px; font-family: var(--font-mono); font-size: 14.5px; color: var(--accent); word-break: break-all; }
+  .file .role { color: var(--muted); margin-bottom: 10px; }
+  .file ul { margin: 6px 0 12px; padding-left: 20px; }
+  .file li { margin: 4px 0; }
+  .note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 14px 0; max-width: 78ch; }
+  .note.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .note.bad { border-left-color: var(--bad); background: var(--bad-soft); }
+  .note p:last-child { margin-bottom: 0; }
+  figure { margin: 18px 0 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  figure .svgwrap { overflow-x: auto; }
+  figure svg { display: block; min-width: 760px; width: 100%; height: auto; color: var(--fg); }
+  figcaption { margin-top: 10px; font-size: 13px; color: var(--muted); max-width: 80ch; }
+  .node { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.4; }
+  .node.hl { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.8; }
+  .node.off { fill: var(--bad-soft); stroke: var(--bad); stroke-dasharray: 5 4; }
+  .band { fill: var(--code-bg); stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 4 3; }
+  .panel { fill: none; stroke: var(--line); stroke-width: 1; }
+  .ln { stroke: currentColor; stroke-width: 1.5; fill: none; }
+  .ln.back { stroke-dasharray: 5 4; stroke: var(--muted); }
+  .ln.off { stroke: var(--bad); stroke-dasharray: 5 4; }
+  svg text { fill: currentColor; font-family: var(--font-body); font-size: 12.5px; }
+  svg text.m { font-family: var(--font-mono); font-size: 11.5px; }
+  svg text.s { fill: var(--muted); font-size: 11.5px; }
+  svg text.h { font-weight: 700; font-size: 13px; }
+  svg text.acc { fill: var(--accent); font-weight: 600; }
+  svg text.bad { fill: var(--bad); font-weight: 600; }
+  svg .arrowhead { fill: currentColor; }
+  .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .cols > div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+  .cols h3 { margin-top: 0; }
+  ol.steps { padding-left: 22px; max-width: 74ch; }
+  ol.steps li { margin: 6px 0; }
+  .themebtn { position: fixed; right: 16px; top: calc(12px + env(safe-area-inset-top, 0px)); z-index: 5; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 6px 12px; font: 500 12px var(--font-body); cursor: pointer; }
+  .themebtn:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 900px) {
+    .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    nav.toc { position: static; max-height: none; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    nav.toc .t { width: 100%; margin-bottom: 4px; }
+    nav.toc a { border-left: 0; padding: 2px 0; }
+    .cols { grid-template-columns: minmax(0, 1fr); }
+    h1 { font-size: 28px; }
+  }
+</style>
+
+<button class="themebtn" id="themebtn" type="button" aria-label="Changer de thème">Thème</button>
+
+<div class="page">
+<nav class="toc" aria-label="Sommaire">
+  <div class="t">Sommaire</div>
+  <a href="#vue">Vue d'ensemble</a>
+  <a href="#schema">Schéma de fonctionnement</a>
+  <a href="#usage">Utilisation dans une API</a>
+  <a href="#batch">Batch et console</a>
+  <a href="#ilogger">ILogger ou Serilog ?</a>
+  <a href="#config">Configuration</a>
+  <a href="#fichiers">Fichier par fichier</a>
+  <a href="#tables">Tables SQL</a>
+  <a href="#erreurs">Réponses d'erreur</a>
+  <a href="#attention">Points d'attention</a>
+</nav>
+
+<main>
+<h1>BPRI.ExceptionHandling</h1>
+<p class="lead">Un paquet NuGet qui attrape les exceptions d'une API ASP.NET Core, renvoie une réponse JSON propre avec un TraceId, et enregistre les erreurs, les logs de l'application et (en option) les requêtes dans un fichier, SQL Server et par e-mail.</p>
+<div class="meta">
+  <span class="chip">net9.0</span><span class="chip">version 2.1.0</span><span class="chip">Serilog 4</span><span class="chip">Sinks.File 7</span><span class="chip">Sinks.MSSqlServer 8</span><span class="chip">Sinks.Email 4</span><span class="chip">Formatting.Compact 3</span>
+</div>
+
+<h2 id="vue">Vue d'ensemble</h2>
+<p>L'API n'a rien à savoir de Serilog. Elle appelle trois méthodes du paquet, lève des <code>AppException</code> quand une règle métier échoue, et utilise <code>ILogger&lt;T&gt;</code> comme d'habitude. Tout le reste (sinks, format, contexte, e-mail) est dans le paquet et se règle dans un fichier <code>exceptionhandling.json</code>.</p>
+<div class="tablewrap"><table>
+  <tr><th>Fonction</th><th>Par défaut</th><th>Destination</th></tr>
+  <tr><td>Gestion des exceptions et réponse JSON avec TraceId</td><td>toujours active</td><td>réponse HTTP + en-tête <code>X-Trace-Id</code></td></tr>
+  <tr><td>Log des exceptions</td><td>fichier actif</td><td>fichier <code>exceptions-AAAAMMJJ.log</code>, table <code>ExceptionLogs</code>, e-mail</td></tr>
+  <tr><td>Logs <code>ILogger</code> de l'application</td><td>désactivé</td><td>fichier et table <code>ExceptionLogs</code> (voir les points d'attention)</td></tr>
+  <tr><td>Trace des requêtes (entrées et réponses)</td><td>désactivé</td><td>fichier <code>requests-AAAAMMJJ.log</code> et/ou table <code>RequestLogs</code></td></tr>
+  <tr><td>Contexte ajouté à chaque log</td><td>toujours</td><td>cprj, utilisateur, claims JWT, TraceId, application, machine</td></tr>
+</table></div>
+
+<h2 id="schema">Schéma de fonctionnement</h2>
+<figure>
+  <div class="svgwrap">
+  <svg viewBox="0 0 960 460" role="img" aria-label="Une requête traverse RequestTracingMiddleware puis ExceptionHandlingMiddleware avant le reste du pipeline; les loggers ajoutent le contexte puis écrivent dans les fichiers, SQL Server et l'e-mail.">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="arrowhead"/></marker></defs>
+
+    <rect class="node" x="10" y="50" width="80" height="96" rx="8"/>
+    <text class="h" x="50" y="102" text-anchor="middle">Client</text>
+
+    <rect class="node hl" x="160" y="50" width="190" height="96" rx="8"/>
+    <text class="h" x="255" y="82" text-anchor="middle">RequestTracing</text>
+    <text class="h" x="255" y="99" text-anchor="middle">Middleware</text>
+    <text class="s" x="255" y="122" text-anchor="middle">si RequestTracing:Enabled</text>
+
+    <rect class="node hl" x="420" y="50" width="200" height="96" rx="8"/>
+    <text class="h" x="520" y="82" text-anchor="middle">ExceptionHandling</text>
+    <text class="h" x="520" y="99" text-anchor="middle">Middleware</text>
+    <text class="s" x="520" y="122" text-anchor="middle">try / catch + TraceId</text>
+
+    <rect class="node" x="690" y="50" width="250" height="96" rx="8"/>
+    <text class="h" x="815" y="86" text-anchor="middle">Reste du pipeline</text>
+    <text class="s" x="815" y="106" text-anchor="middle">Swagger, CORS, Auth, endpoints,</text>
+    <text class="s" x="815" y="122" text-anchor="middle">services (ILogger&lt;T&gt;)</text>
+
+    <line class="ln" x1="90" y1="82" x2="158" y2="82" marker-end="url(#ah)"/>
+    <line class="ln" x1="350" y1="82" x2="418" y2="82" marker-end="url(#ah)"/>
+    <line class="ln" x1="620" y1="82" x2="688" y2="82" marker-end="url(#ah)"/>
+    <text class="s" x="124" y="74" text-anchor="middle">requête</text>
+    <text class="s" x="384" y="74" text-anchor="middle">requête</text>
+    <text class="s" x="654" y="74" text-anchor="middle">requête</text>
+    <line class="ln back" x1="688" y1="118" x2="622" y2="118" marker-end="url(#ah)"/>
+    <line class="ln back" x1="418" y1="118" x2="352" y2="118" marker-end="url(#ah)"/>
+    <line class="ln back" x1="158" y1="118" x2="92" y2="118" marker-end="url(#ah)"/>
+    <text class="s" x="654" y="136" text-anchor="middle">exception</text>
+    <text class="s" x="384" y="136" text-anchor="middle">JSON d'erreur</text>
+    <text class="s" x="124" y="136" text-anchor="middle">réponse</text>
+
+    <rect class="node hl" x="130" y="196" width="250" height="48" rx="8"/>
+    <text class="h" x="255" y="217" text-anchor="middle">RequestTraceLogger</text>
+    <text class="s" x="255" y="234" text-anchor="middle">Serilog dédié aux requêtes</text>
+    <rect class="node hl" x="400" y="196" width="240" height="48" rx="8"/>
+    <text class="h" x="520" y="217" text-anchor="middle">ExceptionLogger</text>
+    <text class="s" x="520" y="234" text-anchor="middle">Serilog des exceptions et de ILogger</text>
+    <rect class="node hl" x="700" y="196" width="230" height="48" rx="8"/>
+    <text class="h" x="815" y="217" text-anchor="middle">ApplicationLogProvider</text>
+    <text class="s" x="815" y="234" text-anchor="middle">ILoggerProvider du paquet</text>
+
+    <line class="ln" x1="255" y1="146" x2="255" y2="194" marker-end="url(#ah)"/>
+    <text class="s" x="262" y="172">trace</text>
+    <line class="ln" x1="520" y1="146" x2="520" y2="194" marker-end="url(#ah)"/>
+    <text class="s" x="527" y="172">exception</text>
+    <line class="ln" x1="815" y1="146" x2="815" y2="194" marker-end="url(#ah)"/>
+    <text class="s" x="822" y="172">ILogger</text>
+    <line class="ln" x1="698" y1="220" x2="642" y2="220" marker-end="url(#ah)"/>
+
+    <rect class="band" x="130" y="284" width="800" height="40" rx="6"/>
+    <text class="m" x="530" y="308" text-anchor="middle">RequestContextEnricher : cprj, utilisateur, claims, TraceId, application, machine</text>
+    <line class="ln" x1="255" y1="244" x2="255" y2="282" marker-end="url(#ah)"/>
+    <line class="ln" x1="520" y1="244" x2="520" y2="282" marker-end="url(#ah)"/>
+
+    <rect class="node" x="130" y="366" width="250" height="70" rx="8"/>
+    <text class="m" x="255" y="391" text-anchor="middle">requests-.log</text>
+    <text class="m" x="255" y="410" text-anchor="middle">table RequestLogs</text>
+    <rect class="node" x="400" y="366" width="240" height="70" rx="8"/>
+    <text class="m" x="520" y="387" text-anchor="middle">exceptions-.log</text>
+    <text class="m" x="520" y="405" text-anchor="middle">table ExceptionLogs</text>
+    <text class="m" x="520" y="423" text-anchor="middle">e-mail (niveau Error)</text>
+    <line class="ln" x1="255" y1="324" x2="255" y2="364" marker-end="url(#ah)"/>
+    <line class="ln" x1="520" y1="324" x2="520" y2="364" marker-end="url(#ah)"/>
+    <text class="s" x="700" y="395">Le fichier, la table et l'e-mail sont</text>
+    <text class="s" x="700" y="413">activés un par un dans la configuration.</text>
+  </svg>
+  </div>
+  <figcaption>La requête entre par le tracing (s'il est activé), puis par le middleware d'exceptions. Une exception remonte jusqu'à lui, il la transforme en réponse JSON et la confie à <code>ExceptionLogger</code>. Les deux loggers passent par le même enricher, donc chaque ligne porte le même contexte.</figcaption>
+</figure>
+
+<h3>Ce qui se passe pour une requête qui échoue</h3>
+<ol class="steps">
+  <li>Le middleware d'exceptions calcule le TraceId (celui de l'<code>Activity</code> en cours, sinon <code>HttpContext.TraceIdentifier</code>) et le place dans l'en-tête <code>X-Trace-Id</code> avant tout traitement.</li>
+  <li>Le reste du pipeline lève une exception.</li>
+  <li><code>MapException</code> (code de l'API) est essayée en premier. Si elle renvoie <code>null</code>, <code>MapDefault</code> décide du statut et du message.</li>
+  <li>L'exception est écrite avec un niveau selon le statut : 404 Information, autres 4xx Warning, 5xx Error. L'empreinte, le type, l'exception interne et le contexte sont ajoutés.</li>
+  <li>Si la réponse n'a pas déjà commencé, le middleware écrit un ProblemDetails JSON avec le message convivial, le <code>traceId</code> et, pour la validation, la liste <code>errors</code>.</li>
+  <li>Le tracing, s'il est actif, voit passer cette réponse d'erreur et l'enregistre avec sa durée.</li>
+</ol>
+
+<h2 id="usage">Utilisation dans une API</h2>
+<h3>1. Installer le paquet</h3>
+<pre><code>dotnet add package BPRI.ExceptionHandling</code></pre>
+<p>Le projet référence <code>Microsoft.AspNetCore.App</code> : aucun autre paquet Serilog n'est nécessaire dans l'API.</p>
+
+<h3>2. Program.cs</h3>
+<pre><code>var builder = WebApplication.CreateBuilder(args);
+
+// 1) Charge exceptionhandling.json (obligatoire) puis exceptionhandling.{Environment}.json (optionnel)
+builder.Configuration.AddBpriExceptionHandlingFile(builder.Environment);
+
+// 2) Enregistre les services du paquet
+builder.Services.AddBpriExceptionHandling(builder.Configuration, o =&gt;
+{
+    // Facultatif : transformer une exception de votre code en réponse HTTP
+    o.MapException = exception =&gt;
+    {
+        if (exception is not ValidationException validation)
+        {
+            return null;                       // null = comportement par défaut du paquet
+        }
+
+        var errors = validation.Errors
+            .GroupBy(e =&gt; e.PropertyName)
+            .ToDictionary(g =&gt; g.Key, g =&gt; g.Select(e =&gt; e.ErrorMessage).ToArray());
+
+        return new ErrorInfo(400, "Les données saisies sont invalides.", errors);
+    };
+});
+
+var app = builder.Build();
+
+// 3) Premier middleware du pipeline
+app.UseBpriExceptionHandling();
+
+app.UseSwagger();      // puis le reste : CORS, authentification, endpoints...
+app.UseAuthentication();
+app.UseAuthorization();
+app.Run();</code></pre>
+<div class="note"><p><strong>Ordre.</strong> <code>UseBpriExceptionHandling()</code> doit venir avant tout le reste. Il enregistre d'abord le tracing (s'il est actif) puis le middleware d'exceptions, donc le tracing enveloppe tout, y compris les réponses 401, 429 ou 500 produites plus loin.</p></div>
+
+<h3>3. Chaîne de connexion</h3>
+<p>Dans <code>appsettings.json</code> (pas dans <code>exceptionhandling.json</code>), sous le nom indiqué par <code>Database:ConnectionStringName</code> (<code>ExceptionLogs</code> par défaut) :</p>
+<pre><code>"ConnectionStrings": {
+  "ExceptionLogs": "Server=.;Database=BpriLogsDb;Trusted_Connection=True;TrustServerCertificate=True;"
+}</code></pre>
+
+<h3>4. Dans le code métier</h3>
+<pre><code>// Erreur métier : le message est renvoyé tel quel au client
+throw new AppException("Ce produit existe déjà.", 409);
+
+// Logs : ILogger classique, aucun type Serilog
+public class CatalogueService
+{
+    private readonly ILogger&lt;CatalogueService&gt; _logger;
+    public CatalogueService(ILogger&lt;CatalogueService&gt; logger) =&gt; _logger = logger;
+
+    public void Exemple() =&gt; _logger.LogInformation("Catalogue créé");
+}</code></pre>
+
+<h3>5. Ce que reçoit le client</h3>
+<pre><code>HTTP/1.1 409 Conflict
+X-Trace-Id: 4bf92f3577b34da6a3ce929d0e0e4736
+Content-Type: application/problem+json
+
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.10",
+  "title": "Ce produit existe déjà.",
+  "status": 409,
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736"
+}</code></pre>
+<p>Les réponses de succès restent le DTO brut. Le champ <code>type</code> est ajouté par ASP.NET Core et pointe vers la définition du code HTTP dans la RFC 9110.</p>
+
+<h2 id="batch">Batch, service ou application console</h2>
+<p>Le paquet fonctionne avec un host .NET (<code>Host.CreateApplicationBuilder</code> ou Worker Service). Il n'y a pas de middleware : on injecte <code>IExceptionReporter</code> et on appelle <code>Report</code> dans les <code>catch</code>.</p>
+<pre><code>var builder = Host.CreateApplicationBuilder(args);
+builder.Configuration.AddBpriExceptionHandlingFile(builder.Environment);
+builder.Services.AddBpriExceptionHandling(builder.Configuration);
+builder.Services.AddHostedService&lt;MonBatch&gt;();
+
+using var host = builder.Build();   // la libération du host envoie les derniers logs en base
+await host.RunAsync();
+
+public class MonBatch(IExceptionReporter reporter, ILogger&lt;MonBatch&gt; logger) : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken token)
+    {
+        try
+        {
+            logger.LogInformation("Début du traitement");
+        }
+        catch (Exception ex)
+        {
+            reporter.Report(ex);   // fichier + SQL Server + e-mail, comme dans une API
+        }
+    }
+}</code></pre>
+<div class="tablewrap"><table>
+  <tr><th>Élément</th><th>Dans un batch</th></tr>
+  <tr><td>Logs <code>ILogger</code></td><td>identiques à l'API, selon <code>ApplicationLogs</code></td></tr>
+  <tr><td><code>reporter.Report(ex, statusCode = 500)</code></td><td>même écriture qu'une exception d'API : ExceptionType, empreinte, e-mail à partir du niveau Error. Un statut 4xx donne Warning, 404 Information.</td></tr>
+  <tr><td>Cprj</td><td>celui de <code>ExceptionHandling:Cprj</code> (pas de JWT), utilisateur et chemin vides</td></tr>
+  <tr><td><code>UseBpriExceptionHandling</code>, <code>RequestTracing</code></td><td>sans objet hors HTTP</td></tr>
+</table></div>
+<div class="note warn"><p>Libérer le host avant de quitter (<code>using var host</code> ou <code>StopAsync</code>) : les lots SQL partent toutes les 2 secondes, les derniers logs seraient perdus sinon. Utiliser des chemins absolus dans <code>File:Path</code> et copier <code>exceptionhandling.json</code> dans le dossier de sortie. Le paquet référence encore le framework ASP.NET, qui doit être présent sur le serveur d'exécution.</p></div>
+
+<h2 id="ilogger">Pourquoi <code>ILogger</code> dans l'API et pas Serilog</h2>
+<p>L'API écrit ses logs avec l'abstraction de Microsoft. Le paquet branche ensuite son propre <code>ILoggerProvider</code> sur cette abstraction, qui transmet chaque message à son Serilog interne. L'API garde ainsi un seul type de logger, et le paquet peut changer de moteur sans toucher aux projets qui l'utilisent.</p>
+<figure>
+  <div class="svgwrap">
+  <svg viewBox="0 0 960 500" role="img" aria-label="Avec la configuration actuelle, ILogger passe par ApplicationLogProvider du paquet puis ExceptionLogger. Avec UseSerilog dans l'API, tous les providers sont remplacés et le provider du paquet n'est plus appelé.">
+    <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="arrowhead"/></marker></defs>
+
+    <rect class="panel" x="4" y="4" width="952" height="228" rx="10"/>
+    <text class="h acc" x="20" y="28">Configuration actuelle : pas de UseSerilog dans l'API</text>
+
+    <rect class="node" x="20" y="80" width="190" height="52" rx="8"/>
+    <text class="h" x="115" y="102" text-anchor="middle">CatalogueService</text>
+    <text class="m" x="115" y="120" text-anchor="middle">ILogger&lt;CatalogueService&gt;</text>
+    <rect class="node" x="260" y="80" width="190" height="52" rx="8"/>
+    <text class="h" x="355" y="102" text-anchor="middle">Microsoft.Extensions</text>
+    <text class="h" x="355" y="119" text-anchor="middle">.Logging</text>
+    <rect class="node hl" x="500" y="52" width="210" height="48" rx="8"/>
+    <text class="h" x="605" y="73" text-anchor="middle">ApplicationLogProvider</text>
+    <text class="s" x="605" y="90" text-anchor="middle">fourni par le paquet</text>
+    <rect class="node" x="500" y="122" width="210" height="48" rx="8"/>
+    <text class="h" x="605" y="143" text-anchor="middle">Console / Debug</text>
+    <text class="s" x="605" y="160" text-anchor="middle">providers par défaut d'ASP.NET</text>
+    <rect class="node hl" x="760" y="52" width="180" height="48" rx="8"/>
+    <text class="h" x="850" y="73" text-anchor="middle">ExceptionLogger</text>
+    <text class="s" x="850" y="90" text-anchor="middle">Serilog, privé au paquet</text>
+    <rect class="node" x="760" y="140" width="180" height="60" rx="8"/>
+    <text class="m" x="850" y="164" text-anchor="middle">ExceptionLogs (SQL)</text>
+    <text class="m" x="850" y="182" text-anchor="middle">fichier</text>
+
+    <line class="ln" x1="210" y1="106" x2="258" y2="106" marker-end="url(#ah2)"/>
+    <line class="ln" x1="450" y1="96" x2="498" y2="76" marker-end="url(#ah2)"/>
+    <line class="ln" x1="450" y1="116" x2="498" y2="144" marker-end="url(#ah2)"/>
+    <line class="ln" x1="710" y1="76" x2="758" y2="76" marker-end="url(#ah2)"/>
+    <line class="ln" x1="850" y1="100" x2="850" y2="138" marker-end="url(#ah2)"/>
+    <text class="s" x="20" y="210">Les deux providers reçoivent chaque message. Celui du paquet applique les niveaux de ApplicationLogs.</text>
+
+    <rect class="panel" x="4" y="262" width="952" height="228" rx="10"/>
+    <text class="h bad" x="20" y="286">Avec builder.Host.UseSerilog(...) dans l'API : ce qui se passait avant</text>
+
+    <rect class="node" x="20" y="338" width="190" height="52" rx="8"/>
+    <text class="h" x="115" y="360" text-anchor="middle">CatalogueService</text>
+    <text class="m" x="115" y="378" text-anchor="middle">ILogger&lt;CatalogueService&gt;</text>
+    <rect class="node" x="260" y="338" width="190" height="52" rx="8"/>
+    <text class="h" x="355" y="360" text-anchor="middle">Microsoft.Extensions</text>
+    <text class="h" x="355" y="377" text-anchor="middle">.Logging</text>
+    <rect class="node" x="500" y="310" width="210" height="48" rx="8"/>
+    <text class="h" x="605" y="331" text-anchor="middle">SerilogLoggerProvider</text>
+    <text class="s" x="605" y="348" text-anchor="middle">remplace tous les providers</text>
+    <rect class="node off" x="500" y="380" width="210" height="48" rx="8"/>
+    <text class="h bad" x="605" y="401" text-anchor="middle">ApplicationLogProvider</text>
+    <text class="s" x="605" y="418" text-anchor="middle">retiré, plus jamais appelé</text>
+    <rect class="node" x="760" y="310" width="180" height="48" rx="8"/>
+    <text class="h" x="850" y="331" text-anchor="middle">Logger de l'API</text>
+    <text class="s" x="850" y="348" text-anchor="middle">ses propres sinks</text>
+
+    <line class="ln" x1="210" y1="364" x2="258" y2="364" marker-end="url(#ah2)"/>
+    <line class="ln" x1="450" y1="354" x2="498" y2="338" marker-end="url(#ah2)"/>
+    <line class="ln off" x1="450" y1="374" x2="498" y2="402"/>
+    <line class="ln" x1="710" y1="334" x2="758" y2="334" marker-end="url(#ah2)"/>
+    <text class="s" x="20" y="470">Résultat : les Information et Warning n'arrivaient pas dans ExceptionLogs, seules les exceptions du middleware y étaient écrites.</text>
+  </svg>
+  </div>
+  <figcaption>En haut, le fonctionnement actuel. En bas, l'effet de <code>UseSerilog</code> : il remplace la liste des providers, donc celui du paquet disparaît. C'est la raison pour laquelle ce bloc a été supprimé de <code>Catalog.Api</code>.</figcaption>
+</figure>
+
+<div class="cols">
+  <div>
+    <h3>Ce que l'on gagne avec ILogger</h3>
+    <ul>
+      <li>L'API et la couche Application dépendent uniquement de <code>Microsoft.Extensions.Logging</code> : aucun paquet Serilog à installer ou à mettre à jour dans chaque projet.</li>
+      <li>Le contexte (cprj, utilisateur, TraceId) est ajouté automatiquement par le paquet, sans code dans les services.</li>
+      <li>Les niveaux se règlent dans <code>exceptionhandling.json</code> : <code>ApplicationLogs:MinimumLevel</code> pour votre code, <code>FrameworkMinimumLevel</code> pour <code>Microsoft.*</code> et <code>System.*</code>.</li>
+      <li>Les services restent testables avec n'importe quel faux <code>ILogger</code>.</li>
+    </ul>
+  </div>
+  <div>
+    <h3>Pourquoi Serilog reste dans le paquet</h3>
+    <ul>
+      <li>Ce sont ses sinks (fichier, SQL Server, e-mail) qui font le travail d'écriture.</li>
+      <li>Le logger du paquet est indépendant de celui de l'application : un projet qui utilise déjà son propre Serilog n'est pas perturbé.</li>
+      <li>Le type <code>ILogger&lt;CatalogueService&gt;</code> vient bien de Microsoft, mais le message finit dans Serilog via <code>ApplicationLogProvider</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<h2 id="config">Configuration</h2>
+<p>Tout se trouve dans la section <code>ExceptionHandling</code> de <code>exceptionhandling.json</code>. Seuls les réglages utiles sont à écrire, les autres gardent leur valeur par défaut. Le fichier est chargé par <code>AddBpriExceptionHandlingFile</code> et peut être surchargé par <code>exceptionhandling.Development.json</code>.</p>
+
+<h3>Général</h3>
+<div class="tablewrap"><table>
+  <tr><th>Clé</th><th>Défaut</th><th>Rôle</th></tr>
+  <tr><td><code>ApplicationName</code></td><td>nom de l'assembly</td><td>Nom écrit dans chaque log (colonne <code>ApplicationName</code>) et utilisé pour filtrer dans la plateforme de logs.</td></tr>
+  <tr><td><code>Cprj</code></td><td><code>ApplicationName</code></td><td>Cprj de secours quand le JWT n'en contient pas.</td></tr>
+  <tr><td><code>UserFriendlyMessage</code></td><td>« Une erreur inattendue est survenue… »</td><td>Message affiché au client pour toute erreur 500.</td></tr>
+  <tr><td><code>TraceIdHeader</code></td><td><code>X-Trace-Id</code></td><td>Nom de l'en-tête de réponse portant le TraceId.</td></tr>
+</table></div>
+
+<h3>Context : lire le JWT</h3>
+<div class="tablewrap"><table>
+  <tr><th>Clé</th><th>Défaut</th><th>Rôle</th></tr>
+  <tr><td><code>CprjClaim</code></td><td><code>cprj</code></td><td>Claim qui contient le cprj de l'appelant. Ordre de résolution : claim, puis en-tête, puis <code>Cprj</code> de la config, puis nom de l'application.</td></tr>
+  <tr><td><code>CprjHeader</code></td><td><code>null</code></td><td>En-tête HTTP de secours. Désactivé par défaut, car un client peut le falsifier.</td></tr>
+  <tr><td><code>UserIdClaim</code></td><td><code>sub</code></td><td>Claim de l'identifiant utilisateur (colonne <code>UserId</code>).</td></tr>
+  <tr><td><code>LoggedClaims</code></td><td><code>[]</code></td><td>Autres claims à enregistrer en JSON dans la colonne <code>Claims</code>, par exemple <code>["role", "email"]</code>. Le jeton lui-même n'est jamais enregistré.</td></tr>
+</table></div>
+
+<h3>ApplicationLogs : les logs ILogger</h3>
+<div class="tablewrap"><table>
+  <tr><th>Clé</th><th>Défaut</th><th>Rôle</th></tr>
+  <tr><td><code>Enabled</code></td><td><code>false</code></td><td>Active <code>ApplicationLogProvider</code>. Exige <code>Database:Enabled = true</code>, sinon le démarrage échoue.</td></tr>
+  <tr><td><code>MinimumLevel</code></td><td><code>Information</code></td><td>Niveau minimum pour le code de l'application.</td></tr>
+  <tr><td><code>FrameworkMinimumLevel</code></td><td><code>Warning</code></td><td>Niveau minimum pour les catégories <code>Microsoft.*</code> et <code>System.*</code>, très bavardes en Information.</td></tr>
+</table></div>
+
+<h3>File : fichier de logs d'exceptions</h3>
+<div class="tablewrap"><table>
+  <tr><th>Clé</th><th>Défaut</th><th>Rôle</th></tr>
+  <tr><td><code>Enabled</code></td><td><code>true</code></td><td>Active le sink fichier.</td></tr>
+  <tr><td><code>Path</code></td><td><code>logs/exceptions-.log</code></td><td>Relatif au dossier de l'application, ou absolu. Un suffixe de date est inséré avant l'extension (rotation quotidienne).</td></tr>
+  <tr><td><code>Json</code></td><td><code>false</code></td><td>Une ligne JSON par log au lieu d'une ligne de texte.</td></tr>
+  <tr><td><code>Compact</code></td><td><code>false</code></td><td>Avec <code>Json</code> : format compact de Serilog (<code>@t</code>, <code>@mt</code>, <code>@l</code>, <code>@x</code>).</td></tr>
+  <tr><td><code>RetainedFileCount</code></td><td><code>30</code></td><td>Nombre de fichiers conservés.</td></tr>
+</table></div>
+
+<h3>Database : SQL Server</h3>
+<div class="tablewrap"><table>
+  <tr><th>Clé</th><th>Défaut</th><th>Rôle</th></tr>
+  <tr><td><code>Enabled</code></td><td><code>false</code></td><td>Active le sink SQL Server.</td></tr>
+  <tr><td><code>ConnectionString</code></td><td><code>null</code></td><td>Chaîne directe. À éviter dans le fichier : préférer <code>ConnectionStrings</code>.</td></tr>
+  <tr><td><code>ConnectionStringName</code></td><td><code>ExceptionLogs</code></td><td>Nom de la chaîne lue dans <code>ConnectionStrings</code> si <code>ConnectionString</code> est vide.</td></tr>
+  <tr><td><code>TableName</code> / <code>SchemaName</code></td><td><code>ExceptionLogs</code> / <code>dbo</code></td><td>Table des exceptions et logs applicatifs.</td></tr>
+  <tr><td><code>AutoCreateTable</code></td><td><code>true</code></td><td>Crée la table au premier démarrage.</td></tr>
+  <tr><td><code>CreateDatabaseIfMissing</code></td><td><code>false</code></td><td>Crée aussi la base (pratique en développement, nécessite le droit CREATE DATABASE).</td></tr>
+</table></div>
+
+<h3>Email</h3>
+<div class="tablewrap"><table>
+  <tr><th>Clé</th><th>Défaut</th><th>Rôle</th></tr>
+  <tr><td><code>Enabled</code></td><td><code>false</code></td><td>Active l'envoi. <code>Host</code>, <code>From</code> et <code>To</code> sont alors obligatoires.</td></tr>
+  <tr><td><code>Host</code>, <code>Port</code></td><td>— , <code>587</code></td><td>Serveur SMTP.</td></tr>
+  <tr><td><code>Security</code></td><td><code>StartTls</code></td><td><code>None</code>, <code>Auto</code>, <code>SslOnConnect</code>, <code>StartTls</code>, <code>StartTlsWhenAvailable</code>.</td></tr>
+  <tr><td><code>UserName</code>, <code>Password</code></td><td><code>null</code></td><td>Identifiants SMTP. Le mot de passe va dans les user-secrets ou une variable d'environnement.</td></tr>
+  <tr><td><code>From</code>, <code>To</code></td><td>—</td><td>Expéditeur et liste de destinataires.</td></tr>
+  <tr><td><code>SubjectPrefix</code></td><td><code>[Exception] </code></td><td>Début de l'objet. L'objet complet : préfixe + <code>ApplicationName - ExceptionType (StatusCode)</code>.</td></tr>
+  <tr><td><code>TemplatePath</code></td><td><code>null</code></td><td>Modèle HTML personnalisé. Variables : <code>{{Level}} {{Timestamp}} {{ApplicationName}} {{Cprj}} {{TraceId}} {{HttpMethod}} {{Path}} {{StatusCode}} {{ExceptionType}} {{User}} {{Environment}} {{Message}} {{Exception}} {{Color}}</code>.</td></tr>
+  <tr><td><code>MinimumLevel</code></td><td><code>Error</code></td><td>Niveau qui déclenche un e-mail.</td></tr>
+  <tr><td><code>BatchPeriodSeconds</code>, <code>BatchSize</code></td><td><code>30</code>, <code>20</code></td><td>Regroupement : un envoi au plus toutes les 30 s, ou dès que 20 erreurs attendent.</td></tr>
+</table></div>
+
+<h3>RequestTracing : trace des entrées et réponses</h3>
+<div class="tablewrap"><table>
+  <tr><th>Clé</th><th>Défaut</th><th>Rôle</th></tr>
+  <tr><td><code>Enabled</code></td><td><code>false</code></td><td>Active le middleware. Il faut aussi activer <code>File</code> et/ou <code>Database</code> ci-dessous.</td></tr>
+  <tr><td><code>Methods</code></td><td>vide = GET, POST, PUT, DELETE</td><td>Méthodes tracées.</td></tr>
+  <tr><td><code>ExcludedPaths</code></td><td><code>[]</code></td><td>Débuts de chemin ignorés, par exemple <code>["/swagger", "/health"]</code>.</td></tr>
+  <tr><td><code>IncludeRequestBody</code>, <code>IncludeResponseBody</code></td><td><code>true</code></td><td>Enregistrer les corps.</td></tr>
+  <tr><td><code>MaxBodyLength</code></td><td><code>4000</code></td><td>Longueur maximale d'un corps, le reste est coupé (<code>…[tronqué]</code>).</td></tr>
+  <tr><td><code>MaskedFields</code></td><td><code>[]</code></td><td>Champs masqués en plus de : password, motdepasse, pwd, secret, token, accessToken, refreshToken, authorization, apiKey.</td></tr>
+  <tr><td><code>File</code></td><td><code>logs/requests-.log</code>, <code>Json = true</code></td><td>Mêmes clés que <code>File</code> plus haut.</td></tr>
+  <tr><td><code>Database</code></td><td>désactivée</td><td><code>Enabled</code>, <code>TableName</code> (<code>RequestLogs</code>), <code>SchemaName</code> (<code>dbo</code>), <code>AutoCreateTable</code> (<code>true</code>). Même base et même chaîne de connexion que <code>ExceptionHandling:Database</code>.</td></tr>
+</table></div>
+
+<h3>Réglages disponibles en code uniquement</h3>
+<div class="tablewrap"><table>
+  <tr><th>Propriété</th><th>Rôle</th></tr>
+  <tr><td><code>MapException</code></td><td><code>Func&lt;Exception, ErrorInfo?&gt;</code> : transforme une exception en réponse. Renvoyer <code>null</code> pour laisser faire le paquet.</td></tr>
+  <tr><td><code>WriteResponse</code></td><td><code>Func&lt;HttpContext, ErrorInfo, string, Task&gt;</code> : écrit la réponse d'erreur soi-même (contexte, erreur, traceId). Par défaut, un ProblemDetails.</td></tr>
+</table></div>
+
+<h3>Validation au démarrage</h3>
+<p><code>AddBpriExceptionHandling</code> refuse de démarrer avec une configuration incohérente : base activée sans chaîne de connexion, <code>ApplicationLogs</code> sans base, <code>RequestTracing</code> sans fichier ni base, e-mail sans <code>Host</code>, <code>From</code> ou <code>To</code>. Le message d'erreur nomme la clé à corriger.</p>
+
+<h2 id="fichiers">Fichier par fichier</h2>
+<p>Dossier <code>src/BPRI.ExceptionHandling</code>. Les types marqués <em>internal</em> ne sont pas visibles de l'API.</p>
+
+<div class="file">
+  <h3>BPRI.ExceptionHandling.csproj</h3>
+  <div class="role">Définition du paquet.</div>
+  <ul>
+    <li>Cible <code>net9.0</code>, nullable et usings implicites activés, version <code>2.0.0</code>, README inclus dans le paquet.</li>
+    <li><code>FrameworkReference Microsoft.AspNetCore.App</code> donne accès à HTTP et à <code>ILoggerProvider</code> sans paquet supplémentaire.</li>
+    <li>Dépendances : Serilog 4, Sinks.File 7.0.0, Sinks.MSSqlServer 8, Sinks.Email 4, Formatting.Compact 3.</li>
+    <li><code>Templates/ErrorMail.html</code> est une ressource intégrée à l'assembly.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Exceptions/AppException.cs</h3>
+  <div class="role">Types publics utilisés par l'API.</div>
+  <ul>
+    <li><code>record ErrorInfo(int StatusCode, string Message, IReadOnlyDictionary&lt;string, string[]&gt;? Errors = null)</code> : la réponse décidée pour une exception. <code>Errors</code> sert à la validation (champ vers messages).</li>
+    <li><code>class AppException : Exception</code> : exception métier. Constructeur <code>(string message, int statusCode = 400, Exception? inner = null)</code>. Propriété <code>StatusCode</code>. Son message est renvoyé tel quel au client.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Extensions/ExceptionHandlerExtensions.cs</h3>
+  <div class="role">Point d'entrée : les trois méthodes appelées depuis <code>Program.cs</code>.</div>
+  <ul>
+    <li><code>AddBpriExceptionHandlingFile(this IConfigurationBuilder, IHostEnvironment, string fileName = "exceptionhandling")</code> : ajoute <code>exceptionhandling.json</code> (obligatoire) et <code>exceptionhandling.{Environment}.json</code> (optionnel), sans rechargement à chaud.</li>
+    <li><code>AddBpriExceptionHandling(this IServiceCollection, IConfiguration, Action&lt;ExceptionHandlingOptions&gt;? configure = null)</code> : lit la section, applique <code>configure</code>, complète la chaîne de connexion depuis <code>ConnectionStrings</code>, valide, puis enregistre en singletons : <code>IHttpContextAccessor</code>, les options, <code>RequestContextEnricher</code>, <code>ExceptionLogger</code>, <code>IExceptionReporter</code>, <code>RequestTraceLogger</code> (si le tracing est actif) et <code>ApplicationLogProvider</code> comme <code>ILoggerProvider</code> (si <code>ApplicationLogs</code> est actif).</li>
+    <li><code>UseBpriExceptionHandling(this IApplicationBuilder)</code> : récupère les services, ajoute <code>RequestTracingMiddleware</code> si le tracing est actif, puis <code>ExceptionHandlingMiddleware</code>. À placer en premier.</li>
+    <li><code>Validate(options)</code> (privée) : lève <code>InvalidOperationException</code> pour toute combinaison incohérente décrite plus haut.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Options/ExceptionHandlingOptions.cs</h3>
+  <div class="role">Toute la configuration, sous forme de classes liées à la section <code>ExceptionHandling</code>.</div>
+  <ul>
+    <li><code>ExceptionHandlingOptions</code> : racine (<code>SectionName = "ExceptionHandling"</code>), propriétés générales, sous-sections, et les deux délégués <code>MapException</code> et <code>WriteResponse</code>.</li>
+    <li><code>ContextOptions</code>, <code>ApplicationLogsOptions</code>, <code>FileLogOptions</code>, <code>DatabaseLogOptions</code>, <code>EmailLogOptions</code> : une classe par sous-section, avec les valeurs par défaut décrites dans le chapitre Configuration.</li>
+    <li><code>RequestTracingOptions</code> et <code>RequestTraceDatabaseOptions</code> : réglages du tracing. Son <code>File</code> démarre avec <code>logs/requests-.log</code> et <code>Json = true</code>.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Middleware/ExceptionHandlingMiddleware.cs <em>(internal)</em></h3>
+  <div class="role">Attrape les exceptions et écrit la réponse.</div>
+  <ul>
+    <li><code>InvokeAsync(HttpContext)</code> : pose l'en-tête TraceId, appelle la suite dans un <code>try</code>. Une annulation due à la déconnexion du client donne un statut 499 sans log. Toute autre exception est mappée, loggée, puis écrite. Si la réponse a déjà commencé, l'exception est relancée.</li>
+    <li><code>MapDefault(Exception)</code> : <code>AppException</code> avec son statut et son message, <code>KeyNotFoundException</code> 404, <code>UnauthorizedAccessException</code> 401, <code>ArgumentException</code> ou <code>FormatException</code> 400, tout le reste 500 avec <code>UserFriendlyMessage</code>.</li>
+        <li><code>WriteProblem(...)</code> : ProblemDetails avec <code>title</code> (message), <code>status</code>, <code>traceId</code> et <code>errors</code> si présent.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Middleware/RequestTracingMiddleware.cs <em>(internal)</em></h3>
+  <div class="role">Trace chaque requête : entrée, réponse, durée. Actif seulement si <code>RequestTracing:Enabled</code>.</div>
+  <ul>
+    <li>Constructeur : fixe les méthodes tracées et compile deux expressions régulières de masquage, une pour le JSON (<code>"champ": "valeur"</code>) et une pour les formulaires et query strings (<code>champ=valeur</code>).</li>
+    <li><code>InvokeAsync</code> : si la requête n'est pas concernée, passe son chemin. Sinon lit le corps de la requête, remplace le flux de réponse par un <code>MemoryStream</code>, appelle la suite, puis dans le <code>finally</code> arrête le chronomètre, masque la query string, appelle <code>RequestTraceLogger.Write</code>, et recopie la réponse vers le vrai flux.</li>
+    <li><code>ShouldTrace</code> : méthode dans la liste et chemin hors de <code>ExcludedPaths</code>.</li>
+    <li><code>ReadRequestBodyAsync</code> : renvoie <code>null</code> sans corps, un texte de remplacement si le contenu n'est pas du texte ou dépasse 1 Mo, sinon lit avec <code>EnableBuffering</code> et remet le flux au début pour que l'endpoint puisse relire.</li>
+    <li><code>ReadResponseBody</code> : texte de remplacement pour un contenu compressé ou non textuel.</li>
+    <li><code>Clean</code> : masque les valeurs sensibles puis tronque à <code>MaxBodyLength</code>. <code>IsText</code> accepte json, text, xml et x-www-form-urlencoded.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Services/RequestContextEnricher.cs <em>(internal)</em></h3>
+  <div class="role">Ajoute le contexte de la requête en cours à chaque log, de n'importe quel logger du paquet.</div>
+  <ul>
+    <li><code>TraceId(HttpContext?)</code> (statique) : <code>Activity.Current.TraceId</code> sinon <code>TraceIdentifier</code>. Utilisé aussi par le middleware pour l'en-tête.</li>
+    <li><code>Enrich(LogEvent, factory)</code> : ajoute ApplicationName, EnvironmentName, MachineName, Cprj, TraceId, puis, s'il y a une requête, HttpMethod, Path, UserName, UserId et Claims. Une propriété déjà présente n'est pas écrasée.</li>
+    <li><code>ResolveCprj</code> : claim JWT, en-tête, cprj de la config, nom de l'application.</li>
+    <li><code>LoggedClaims</code> : sérialise en JSON les claims demandés si l'utilisateur est authentifié. <code>Values</code> tient compte des alias que .NET applique aux JWT (<code>sub</code> devient <code>NameIdentifier</code>, <code>email</code>, <code>role</code>…).</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Services/ExceptionLogger.cs <em>(internal)</em></h3>
+  <div class="role">Le Serilog des exceptions et des logs <code>ILogger</code>. Niveau minimum Verbose, filtrage par sink.</div>
+  <ul>
+    <li>Constructeur : active l'auto-diagnostic Serilog (erreurs de sink écrites sur la console), ajoute l'enricher, puis les sinks activés.</li>
+    <li><code>LevelFor(int statusCode)</code> : 404 Information, autres 4xx Warning, 5xx Error. Partagé par le middleware et <code>ExceptionReporter</code>.</li>
+    <li><code>Write(LogEventLevel, Exception, int statusCode)</code> : appelé par le middleware et par <code>ExceptionReporter</code>. Ajoute StatusCode, ExceptionType, InnerException et Fingerprint.</li>
+    <li><code>ForCategory(string)</code> : logger Serilog avec <code>SourceContext</code> pour une catégorie <code>ILogger</code>. Utilisé par <code>ApplicationLogProvider</code>.</li>
+    <li><code>AddFileSink</code> : texte (modèle fixe) ou JSON (<code>JsonFormat</code>), rotation quotidienne, fichier partagé.</li>
+    <li><code>AddDatabaseSink</code> : sink SQL Server par lots de 50 ou toutes les 2 s, création de la table et éventuellement de la base. <code>BuildColumns</code> définit les colonnes (voir Tables SQL).</li>
+    <li><code>AddEmailSink</code> : sous-logger filtré par <code>IsException</code>, avec regroupement et corps HTML via <code>HtmlEmailFormatter</code>.</li>
+    <li><code>JsonFormat(FileLogOptions)</code> : <code>CompactJsonFormatter</code> si <code>Compact</code>, sinon <code>JsonFormatter</code>. Partagé avec le tracing.</li>
+    <li><code>Fingerprint</code> : SHA-256 de « type | première ligne de la stack », 8 octets en hexadécimal. Deux occurrences de la même erreur ont la même empreinte.</li>
+    <li><code>CreateDatabaseIfMissing</code> : se connecte à <code>master</code> et crée la base. Une erreur est écrite sur la console, sans arrêter l'application.</li>
+    <li><code>Dispose</code> : vide les tampons du logger.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Services/ApplicationLogProvider.cs <em>(internal)</em></h3>
+  <div class="role">Le pont entre <code>ILogger</code> de Microsoft et Serilog.</div>
+  <ul>
+    <li><code>CreateLogger(string categoryName)</code> : choisit le niveau minimum (<code>FrameworkMinimumLevel</code> pour les catégories <code>Microsoft.</code> et <code>System.</code>, sinon <code>MinimumLevel</code>) et renvoie un <code>Bridge</code>.</li>
+    <li><code>Bridge.IsEnabled</code> : le niveau doit atteindre le minimum. <code>Bridge.Log</code> : formate le message avec le <code>formatter</code> de Microsoft puis l'écrit en Serilog avec l'exception éventuelle. <code>BeginScope</code> ne fait rien.</li>
+    <li><code>ToSerilogLevel</code> : Trace Verbose, Debug Debug, Information Information, Warning Warning, Error Error, Critical Fatal.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Services/ExceptionReporter.cs</h3>
+  <div class="role">Écriture d'une exception hors HTTP (batch, console).</div>
+  <ul>
+    <li><code>interface IExceptionReporter</code> (publique) : <code>Report(Exception exception, int statusCode = 500)</code>. Enregistrée par <code>AddBpriExceptionHandling</code>.</li>
+    <li><code>ExceptionReporter</code> (<em>internal</em>) : appelle <code>ExceptionLogger.Write</code> avec le niveau donné par <code>ExceptionLogger.LevelFor(statusCode)</code>, le même calcul que le middleware.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Services/RequestTraceLogger.cs <em>(internal)</em></h3>
+  <div class="role">Un second Serilog, réservé au tracing, séparé des logs d'exceptions.</div>
+  <ul>
+    <li>Constructeur : sink fichier et/ou table selon <code>RequestTracing</code>, avec le même enricher.</li>
+    <li><code>Write(method, path, query, statusCode, durationMs, requestBody, responseBody)</code> : niveau Error pour un 5xx, Warning pour un 4xx, Information sinon. Ajoute QueryString, StatusCode, DurationMs, les deux corps, et <code>UserName = "anonymous"</code> quand aucun utilisateur n'est connecté.</li>
+    <li><code>AddFileSink</code> (texte avec IN / OUT ou JSON), <code>AddDatabaseSink</code> et <code>BuildColumns</code> : mêmes principes que <code>ExceptionLogger</code>, sans colonne Exception.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Services/HtmlEmailFormatter.cs <em>(internal)</em></h3>
+  <div class="role">Fabrique le corps HTML de l'e-mail d'erreur.</div>
+  <ul>
+    <li>Constructeur : charge le modèle indiqué par <code>TemplatePath</code>, sinon la ressource <code>ErrorMail.html</code>.</li>
+    <li><code>Format(LogEvent, TextWriter)</code> : remplace chaque <code>{{Variable}}</code> par la valeur correspondante, encodée en HTML. <code>{{Color}}</code> est rouge pour Error, orange pour Warning, bleu sinon.</li>
+    <li><code>GetProperty</code> lit une propriété du log, <code>ReadDefaultTemplate</code> lit la ressource intégrée.</li>
+  </ul>
+</div>
+
+<div class="file">
+  <h3>Templates/ErrorMail.html</h3>
+  <div class="role">Modèle par défaut de l'e-mail : bandeau coloré avec le type et le statut, tableau application / cprj / TraceId / requête / utilisateur / environnement, puis la stack trace.</div>
+</div>
+
+<h2 id="tables">Tables SQL</h2>
+<div class="cols">
+  <div>
+    <h3>dbo.ExceptionLogs</h3>
+    <p>Une ligne par exception gérée, et par log <code>ILogger</code> si <code>ApplicationLogs</code> est actif.</p>
+    <p><code>Id</code>, <code>Message</code>, <code>Level</code>, <code>TimeStamp</code> (UTC), <code>Exception</code>, <code>TraceId</code>, <code>Cprj</code>, <code>ApplicationName</code>, <code>EnvironmentName</code>, <code>MachineName</code>, <code>SourceContext</code>, <code>StatusCode</code>, <code>ExceptionType</code>, <code>InnerException</code>, <code>Fingerprint</code>, <code>HttpMethod</code>, <code>Path</code>, <code>UserName</code>, <code>UserId</code>, <code>Claims</code>.</p>
+  </div>
+  <div>
+    <h3>dbo.RequestLogs</h3>
+    <p>Une ligne par requête tracée. Créée seulement si <code>RequestTracing:Database:Enabled</code> est vrai.</p>
+    <p><code>Id</code>, <code>Message</code>, <code>Level</code>, <code>TimeStamp</code> (UTC), <code>TraceId</code>, <code>Cprj</code>, <code>ApplicationName</code>, <code>EnvironmentName</code>, <code>MachineName</code>, <code>HttpMethod</code>, <code>Path</code>, <code>QueryString</code>, <code>StatusCode</code>, <code>DurationMs</code>, <code>UserName</code>, <code>UserId</code>, <code>RequestBody</code>, <code>ResponseBody</code>.</p>
+  </div>
+</div>
+<p>Le même <code>TraceId</code> relie une ligne de <code>RequestLogs</code> à ses lignes de <code>ExceptionLogs</code>. La plateforme de logs (Angular) s'appuie sur ce lien.</p>
+
+<h2 id="erreurs">Réponses d'erreur</h2>
+<div class="tablewrap"><table>
+  <tr><th>Cas</th><th>Statut</th><th>Message au client</th><th>Niveau du log</th></tr>
+  <tr><td><code>AppException(msg, code)</code></td><td>code choisi</td><td>msg</td><td>selon le code</td></tr>
+  <tr><td><code>KeyNotFoundException</code></td><td>404</td><td>La ressource demandée est introuvable.</td><td>Information</td></tr>
+  <tr><td><code>UnauthorizedAccessException</code></td><td>401</td><td>Accès non autorisé.</td><td>Warning</td></tr>
+  <tr><td><code>ArgumentException</code>, <code>FormatException</code></td><td>400</td><td>La requête est invalide.</td><td>Warning</td></tr>
+  <tr><td>Via <code>MapException</code> (ex. validation)</td><td>au choix</td><td>au choix, avec <code>errors</code></td><td>selon le code</td></tr>
+  <tr><td>Toute autre exception</td><td>500</td><td><code>UserFriendlyMessage</code></td><td>Error (et e-mail)</td></tr>
+  <tr><td>Client déconnecté</td><td>499</td><td>—</td><td>aucun</td></tr>
+</table></div>
+<p>Le détail technique (type, stack trace, utilisateur) n'est jamais renvoyé au client : il est uniquement dans les logs, retrouvable avec le TraceId.</p>
+
+<h2 id="attention">Points d'attention</h2>
+<div class="note bad"><p><strong>Mot de passe SMTP.</strong> Il ne doit pas rester en clair dans <code>exceptionhandling.json</code>. Utiliser <code>dotnet user-secrets set "ExceptionHandling:Email:Password" "..."</code> en développement ou une variable d'environnement <code>ExceptionHandling__Email__Password</code> en production, et changer le mot de passe déjà partagé.</p></div>
+<div class="note warn"><p><strong>Données personnelles dans le tracing.</strong> Les corps de requêtes et de réponses sont enregistrés. Les mots de passe et jetons sont masqués, pas les autres champs. Activer <code>RequestTracing</code> en connaissance de cause, exclure les chemins sensibles avec <code>ExcludedPaths</code> et ajouter les champs propres à l'application dans <code>MaskedFields</code>.</p></div>
+<div class="note warn"><p><strong>Logs ILogger dans le fichier.</strong> L'option <code>ApplicationLogs</code> est décrite comme « uniquement en base », mais dans le code seul le sink e-mail est filtré sur les exceptions. Le sink fichier reçoit donc aussi les logs <code>ILogger</code>. Si le fichier ne doit contenir que les exceptions, il faut ajouter le même filtre <code>IsException</code> au sink fichier.</p></div>
+<div class="note"><p><strong>Tracing et mémoire.</strong> La réponse est mise en mémoire avant d'être envoyée, pour pouvoir en lire le corps. À éviter pour des téléchargements volumineux : exclure ces chemins avec <code>ExcludedPaths</code>. Les corps de requête de plus de 1 Mo ne sont pas lus.</p></div>
+<div class="note"><p><strong>Cprj dans le JWT.</strong> Pour que chaque log porte le bon cprj, l'API qui émet les jetons doit y ajouter la claim <code>cprj</code>. Sans elle, le cprj de la configuration est utilisé (<code>CatalogueAPP</code> pour Catalog.Api).</p></div>
+</main>
+</div>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themebtn');
+    btn.addEventListener('click', function () {
+      var dark = root.getAttribute('data-theme') === 'dark' ||
+        (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      root.setAttribute('data-theme', dark ? 'light' : 'dark');
+    });
+  })();
+</script>
+
+</body></html>

@@ -1,0 +1,34 @@
+<div class="head">
+  <h2 mat-dialog-title>Détail de la requête</h2>
+  <button mat-icon-button aria-label="Fermer" (click)="ref.close()"><app-icon [path]="icons.close" /></button>
+</div>
+<mat-dialog-content>
+  @if (d(); as d) {
+    <div class="title">
+      @if (d.statusCode) { <span class="status" [style.--c]="color(d.statusCode)">{{ d.statusCode }}</span> }
+      <strong>{{ d.httpMethod }} {{ d.path }}</strong>
+    </div>
+    <div class="trace">
+      <code>{{ d.traceId }}</code>
+      <button mat-icon-button aria-label="Copier le TraceId" (click)="copy(d.traceId)">
+        <app-icon [path]="copied() ? icons.check : icons.copy" />
+      </button>
+      <button mat-button (click)="go(d.traceId, 'requests')"><app-icon [path]="icons.search" /> Toutes les requêtes de ce TraceId</button>
+      <button mat-button (click)="go(d.traceId, 'exceptions')"><app-icon [path]="icons.search" /> Logs et exceptions associés</button>
+    </div>
+    <dl>
+      <dt>Date (UTC)</dt><dd>{{ d.occurredAtUtc | date: 'dd/MM/yyyy HH:mm:ss' : 'UTC' }}</dd>
+      <dt>Durée</dt><dd><span [class]="duration(d.durationMs)">{{ format(d.durationMs) }}</span></dd>
+      <dt>Cprj</dt><dd>{{ d.cprj }}</dd>
+      <dt>Application</dt><dd>{{ d.applicationName }}</dd>
+      <dt>Query string</dt><dd><code>{{ d.queryString || '—' }}</code></dd>
+      <dt>Utilisateur</dt><dd>{{ d.userName || '—' }} @if (d.userId) { <code>({{ d.userId }})</code> }</dd>
+      <dt>Environnement</dt><dd>{{ d.environmentName || '—' }}</dd>
+      <dt>Machine</dt><dd>{{ d.machineName || '—' }}</dd>
+    </dl>
+    <h4>Corps de la requête</h4>
+    @if (d.requestBody) { <pre>{{ pretty(d.requestBody) }}</pre> } @else { <p class="none">Aucun corps enregistré.</p> }
+    <h4>Corps de la réponse</h4>
+    @if (d.responseBody) { <pre>{{ pretty(d.responseBody) }}</pre> } @else { <p class="none">Aucun corps enregistré.</p> }
+  }
+</mat-dialog-content>

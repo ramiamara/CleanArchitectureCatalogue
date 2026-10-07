@@ -10,8 +10,4 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\BPRI.ExceptionHandling\BPRI.ExceptionHandling.csproj" />
-  </ItemGroup>
-
 </Project>

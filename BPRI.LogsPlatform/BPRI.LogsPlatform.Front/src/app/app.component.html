@@ -1,0 +1,67 @@
+<mat-toolbar class="topbar">
+  <span class="brand"><app-icon [path]="icons.logo" /> Logs Platform</span>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="project-select">
+    <mat-label>Projet (cprj)</mat-label>
+    <mat-select [value]="store.project()" (selectionChange)="store.setProject($event.value)">
+      @for (p of store.projects(); track p.code) {
+        <mat-option [value]="p.code">{{ p.code }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="application-select">
+    <mat-label>Application</mat-label>
+    <mat-select [value]="store.application()" (selectionChange)="store.application.set($event.value)">
+      <mat-option value="">Toutes</mat-option>
+      @for (a of store.applications(); track a) {
+        <mat-option [value]="a">{{ a }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="range-select">
+    <mat-label>Période</mat-label>
+    <mat-select [value]="store.rangeHours()" (selectionChange)="store.rangeHours.set($event.value)">
+      @for (r of ranges; track r.hours) {
+        <mat-option [value]="r.hours">{{ r.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <form class="trace-search" (ngSubmit)="searchTrace()">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Rechercher un TraceId</mat-label>
+      <input matInput name="trace" autocomplete="off" spellcheck="false" [ngModel]="traceInput()" (ngModelChange)="traceInput.set($event)" />
+      <app-icon matPrefix [path]="icons.search" />
+    </mat-form-field>
+    <button mat-flat-button type="submit">Chercher</button>
+    <button mat-stroked-button type="button" (click)="store.resetFilters()"><app-icon [path]="icons.filterOff" /> Réinitialiser</button>
+  </form>
+
+  <span class="spacer"></span>
+
+  <button mat-icon-button matTooltip="Actualiser" aria-label="Actualiser" (click)="store.refresh()">
+    <app-icon [path]="icons.refresh" />
+  </button>
+  <button mat-icon-button [matTooltip]="theme.mode() === 'dark' ? 'Mode clair' : 'Mode sombre'" aria-label="Changer de thème" (click)="theme.toggle()">
+    <app-icon [path]="theme.mode() === 'dark' ? icons.lightMode : icons.darkMode" />
+  </button>
+</mat-toolbar>
+
+<main class="content">
+  @if (store.apiError(); as err) {
+    <div class="api-error" role="alert">{{ err }}</div>
+  }
+
+  <mat-button-toggle-group class="views" [value]="store.view()" (change)="store.view.set($event.value)" hideSingleSelectionIndicator aria-label="Vue">
+    <mat-button-toggle value="exceptions">Exceptions</mat-button-toggle>
+    <mat-button-toggle value="requests">Requêtes</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  @if (store.view() === 'exceptions') {
+    <app-dashboard />
+  } @else {
+    <app-requests />
+  }
+</main>

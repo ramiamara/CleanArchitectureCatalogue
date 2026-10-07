@@ -1,0 +1,118 @@
+<section class="kpis">
+  @for (k of kpis(); track k.label) {
+    <div class="kpi" [style.--kpi-color]="k.color">
+      <div class="kpi-label">{{ k.label }}</div>
+      <div class="kpi-value">{{ k.value | number }}</div>
+    </div>
+  }
+</section>
+@if (loadingStats()) { <mat-progress-bar mode="indeterminate" class="bar" /> }
+
+<section class="grid">
+  <mat-card appearance="outlined" class="span-4">
+    <mat-card-header><mat-card-title>Répartition par sévérité</mat-card-title></mat-card-header>
+    <mat-card-content><div class="chart"><app-chart type="doughnut" [data]="severityData()" [options]="doughnutOptions()" /></div></mat-card-content>
+  </mat-card>
+  <mat-card appearance="outlined" class="span-8">
+    <mat-card-header><mat-card-title>Chronologie</mat-card-title></mat-card-header>
+    <mat-card-content><div class="chart"><app-chart type="bar" [data]="timelineData()" [options]="timelineOptions()" /></div></mat-card-content>
+  </mat-card>
+  <mat-card appearance="outlined" class="span-5">
+    <mat-card-header><mat-card-title>Codes HTTP</mat-card-title></mat-card-header>
+    <mat-card-content><div class="chart"><app-chart type="bar" [data]="statusData()" [options]="barOptions()" /></div></mat-card-content>
+  </mat-card>
+  <mat-card appearance="outlined" class="span-4">
+    <mat-card-header><mat-card-title>Types d'exception</mat-card-title></mat-card-header>
+    <mat-card-content><div class="chart"><app-chart type="bar" [data]="typeData()" [options]="horizontalBarOptions()" /></div></mat-card-content>
+  </mat-card>
+  <mat-card appearance="outlined" class="span-3">
+    <mat-card-header><mat-card-title>Endpoints les plus touchés</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <ul class="endpoints">
+        @for (e of topEndpoints(); track $index) {
+          <li><span class="method">{{ e.method }}</span><span class="path" [attr.title]="e.path">{{ e.path }}</span><span class="count">{{ e.count | number }}</span></li>
+        } @empty { <li class="empty">Aucune donnée</li> }
+      </ul>
+    </mat-card-content>
+  </mat-card>
+</section>
+
+<mat-card appearance="outlined" class="logs-card">
+  <div class="logs-header">
+    <h3>Logs <small>{{ total() | number }} résultat(s)</small>
+      @if (store.traceId()) {
+        <span class="trace-chip" title="Recherche par TraceId (toute période)">
+          {{ store.traceId() }}
+          <button type="button" aria-label="Effacer le TraceId" (click)="store.clearTrace()"><app-icon [path]="icons.close" /></button>
+        </span>
+      }
+    </h3>
+    <div class="table-filters">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Sévérité</mat-label>
+        <mat-select multiple [value]="severityFilter()" (selectionChange)="severityFilter.set($event.value)">
+          @for (s of severityOptions; track s) { <mat-option [value]="s">{{ label(s) }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Code HTTP</mat-label>
+        <mat-select multiple [value]="statusFilter()" (selectionChange)="statusFilter.set($event.value)">
+          @for (c of filters().statusCodes; track c) { <mat-option [value]="c">{{ c }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="type-field">
+        <mat-label>Type d'exception</mat-label>
+        <mat-select [value]="typeFilter()" (selectionChange)="typeFilter.set($event.value)">
+          <mat-option [value]="null">Tous</mat-option>
+          @for (t of filters().exceptionTypes; track t) { <mat-option [value]="t">{{ short(t) }}</mat-option> }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search-field">
+        <mat-label>Rechercher (message, chemin)</mat-label>
+        <input matInput [ngModel]="searchText()" (ngModelChange)="searchText.set($event)" autocomplete="off" />
+      </mat-form-field>
+      @if (hasFilters()) {
+        <button mat-button (click)="resetFilters()"><app-icon [path]="icons.filterOff" /> Réinitialiser</button>
+      }
+    </div>
+  </div>
+  @if (loadingLogs()) { <mat-progress-bar mode="indeterminate" /> }
+
+  <div class="table-wrap">
+    <table mat-table [dataSource]="rows()" matSort [matSortActive]="sortField()" [matSortDirection]="sortDir()" matSortDisableClear (matSortChange)="onSort($event)">
+      <ng-container matColumnDef="occurredAtUtc">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+        <td mat-cell *matCellDef="let r" class="nowrap">{{ r.occurredAtUtc | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="severity">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Sévérité</th>
+        <td mat-cell *matCellDef="let r"><span class="sev" [attr.data-sev]="r.severity">{{ label(r.severity) }}</span></td>
+      </ng-container>
+      <ng-container matColumnDef="statusCode">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>HTTP</th>
+        <td mat-cell *matCellDef="let r">@if (r.statusCode) { <span class="status" [style.--c]="color(r.statusCode)">{{ r.statusCode }}</span> }</td>
+      </ng-container>
+      <ng-container matColumnDef="exceptionType">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+        <td mat-cell *matCellDef="let r" [title]="r.exceptionType || r.sourceContext">{{ short(r.exceptionType || r.sourceContext || '') }}</td>
+      </ng-container>
+      <ng-container matColumnDef="message">
+        <th mat-header-cell *matHeaderCellDef>Message</th>
+        <td mat-cell *matCellDef="let r" class="msg" [title]="r.message">{{ r.message }}</td>
+      </ng-container>
+      <ng-container matColumnDef="request">
+        <th mat-header-cell *matHeaderCellDef>Requête</th>
+        <td mat-cell *matCellDef="let r" class="nowrap"><span class="method">{{ r.httpMethod }}</span> {{ r.path }}</td>
+      </ng-container>
+      <ng-container matColumnDef="traceId">
+        <th mat-header-cell *matHeaderCellDef>TraceId</th>
+        <td mat-cell *matCellDef="let r" class="mono">{{ r.traceId.slice(0, 12) }}…</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns; sticky: false"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns" class="log-row" (click)="open(row)"></tr>
+      <tr class="mat-row" *matNoDataRow><td class="empty" [attr.colspan]="columns.length">Aucun log pour ces critères.</td></tr>
+    </table>
+  </div>
+  <mat-paginator [length]="total()" [pageIndex]="page() - 1" [pageSize]="pageSize()" [pageSizeOptions]="[10, 25, 50, 100]" (page)="onPage($event)" showFirstLastButtons />
+</mat-card>

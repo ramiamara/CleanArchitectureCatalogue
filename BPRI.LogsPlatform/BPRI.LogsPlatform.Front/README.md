@@ -19,11 +19,5 @@ npm start            # http://localhost:4200  (proxy /api -> http://localhost:50
 
 L'API est `BPRI.LogsPlatform.Back` (`dotnet run`, port 5080).
 
-### Sans SQL Server : faux serveur d'API
-
-```bash
-npm run build && npm run mock     # http://localhost:5080 (sert aussi le build)
-```
-
 ## Prérequis
 Node.js 20.19+, 22.12+ ou 24+ (Angular 21). Application sans zone.js (zoneless), thème Material 3.

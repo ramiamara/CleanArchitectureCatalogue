@@ -57,3 +57,11 @@ export function prettyBody(text: string | null | undefined): string {
     return text;
   }
 }
+
+/** Étiquette d'un point de chronologie : « jj/mm » par jour, « hh:mm » par heure. */
+export function timelineLabel(iso: string, bucket: string | undefined): string {
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, '0');
+  if (bucket === 'day') return `${p(d.getDate())}/${p(d.getMonth() + 1)}`;
+  return `${p(d.getHours())}:${p(d.getMinutes())}`;
+}
