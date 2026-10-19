@@ -46,14 +46,11 @@ public static class ExceptionHandlerExtensions
 
         services.AddSingleton<IExceptionReporter, ExceptionReporter>();
 
-        if (options.RequestTracing.Enabled)
+        services.AddSingleton(provider =>
         {
-            services.AddSingleton(provider =>
-            {
-                var environment = provider.GetRequiredService<IHostEnvironment>();
-                return new RequestTraceLogger(options, environment.ContentRootPath, provider.GetRequiredService<RequestContextEnricher>());
-            });
-        }
+            var environment = provider.GetRequiredService<IHostEnvironment>();
+            return new RequestTraceLogger(options, environment.ContentRootPath, provider.GetRequiredService<RequestContextEnricher>());
+        });
 
         if (options.ApplicationLogs.Enabled)
         {
@@ -70,11 +67,8 @@ public static class ExceptionHandlerExtensions
         var logger = app.ApplicationServices.GetRequiredService<ExceptionLogger>();
         var options = app.ApplicationServices.GetRequiredService<ExceptionHandlingOptions>();
 
-        if (options.RequestTracing.Enabled)
-        {
-            var traceLogger = app.ApplicationServices.GetRequiredService<RequestTraceLogger>();
-            app.UseMiddleware<RequestTracingMiddleware>(traceLogger, options.RequestTracing);
-        }
+        var traceLogger = app.ApplicationServices.GetRequiredService<RequestTraceLogger>();
+        app.UseMiddleware<RequestTracingMiddleware>(traceLogger, options.RequestTracing);
 
         return app.UseMiddleware<ExceptionHandlingMiddleware>(logger, options);
     }
@@ -94,18 +88,15 @@ public static class ExceptionHandlerExtensions
         }
 
         RequestTracingOptions tracing = options.RequestTracing;
-        if (tracing.Enabled)
+        if (tracing.Enabled && !tracing.File.Enabled && !tracing.Database.Enabled)
         {
-            if (!tracing.File.Enabled && !tracing.Database.Enabled)
-            {
-                throw new InvalidOperationException("ExceptionHandling:RequestTracing est activé : activez File et/ou Database.");
-            }
-            if (tracing.Database.Enabled && string.IsNullOrWhiteSpace(options.Database.ConnectionString))
-            {
-                throw new InvalidOperationException(
-                    "ExceptionHandling:RequestTracing:Database est activé mais aucune chaîne de connexion n'est définie (ConnectionStrings:"
-                    + options.Database.ConnectionStringName + ").");
-            }
+            throw new InvalidOperationException("ExceptionHandling:RequestTracing est activé : activez File et/ou Database.");
+        }
+        if (tracing.Database.Enabled && string.IsNullOrWhiteSpace(options.Database.ConnectionString))
+        {
+            throw new InvalidOperationException(
+                "ExceptionHandling:RequestTracing:Database est activé mais aucune chaîne de connexion n'est définie (ConnectionStrings:"
+                + options.Database.ConnectionStringName + ").");
         }
 
         var email = options.Email;

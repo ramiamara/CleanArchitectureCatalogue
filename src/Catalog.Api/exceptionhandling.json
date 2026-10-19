@@ -17,6 +17,7 @@
     "RequestTracing": {
       "Enabled": true,
       "Methods": [ "GET", "POST", "PUT", "DELETE" ],
+      "IncludedPaths": [],
       "ExcludedPaths": [ "/swagger", "/health" ],
       "IncludeRequestBody": true,
       "IncludeResponseBody": true,

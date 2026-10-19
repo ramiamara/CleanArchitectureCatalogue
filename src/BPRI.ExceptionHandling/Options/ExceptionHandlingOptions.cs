@@ -133,13 +133,19 @@ public sealed class EmailLogOptions
 /// <summary>Trace des requêtes GET, POST, PUT et DELETE : entrées et réponses, dans un fichier et/ou une table dédiée (distincts des logs d'exceptions).</summary>
 public sealed class RequestTracingOptions
 {
-    /// <summary>Désactivé par défaut. Les corps peuvent contenir des données personnelles : à activer en connaissance de cause.</summary>
+    /// <summary>
+    /// Trace toutes les requêtes (filtrées par Methods, IncludedPaths et ExcludedPaths). Désactivé par défaut : les corps peuvent contenir des données personnelles.
+    /// Même désactivé, une requête qui se termine en erreur 500 est toujours enregistrée dans File / Database (sans corps de réponse).
+    /// </summary>
     public bool Enabled { get; set; }
 
     /// <summary>Méthodes tracées. Vide = GET, POST, PUT, DELETE.</summary>
     public List<string> Methods { get; set; } = [];
 
-    /// <summary>Chemins ignorés (début de chemin). Ex. : ["/swagger", "/health"].</summary>
+    /// <summary>Chemins tracés (début de chemin). Ex. : ["/test", "/catalogue"]. Vide = tous les chemins. Sans effet sur les erreurs 500, toujours enregistrées.</summary>
+    public List<string> IncludedPaths { get; set; } = [];
+
+    /// <summary>Chemins ignorés (début de chemin). Ex. : ["/swagger", "/health"]. Prioritaire sur IncludedPaths.</summary>
     public List<string> ExcludedPaths { get; set; } = [];
 
     public bool IncludeRequestBody { get; set; } = true;

@@ -27,27 +27,24 @@ Le paquet fonctionne avec un host .NET (`Host.CreateApplicationBuilder` ou Worke
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddBpriExceptionHandlingFile(builder.Environment);
 builder.Services.AddBpriExceptionHandling(builder.Configuration);
-builder.Services.AddHostedService<MonBatch>();
+builder.Services.AddTransient<MonBatch>();
 
-using var host = builder.Build();   // la libération du host envoie les derniers logs en base
-await host.RunAsync();
+using var host = builder.Build();   // à la fin du programme, la libération du host envoie les derniers logs et e-mails
+var reporter = host.Services.GetRequiredService<IExceptionReporter>();
 
-public class MonBatch(IExceptionReporter reporter, ILogger<MonBatch> logger) : BackgroundService
+try
 {
-    protected override async Task ExecuteAsync(CancellationToken token)
-    {
-        try
-        {
-            logger.LogInformation("Début du traitement");
-        }
-        catch (Exception ex)
-        {
-            reporter.Report(ex);   // fichier + SQL Server + e-mail, comme dans une API
-        }
-    }
+    await host.Services.GetRequiredService<MonBatch>().RunAsync();
+    return 0;
+}
+catch (Exception ex)
+{
+    reporter.Report(ex);   // fichier + SQL Server + e-mail, comme dans une API
+    return 1;
 }
 ```
 
+- Ne pas appeler `Environment.Exit` avant la fin du `using` : l'écriture en base (toutes les 2 s) et l'e-mail (regroupement de 30 s) sont envoyés à la libération du host.
 - Utiliser des chemins absolus dans `File:Path` et copier `exceptionhandling.json` dans le dossier de sortie.
 - Le cprj est celui de `ExceptionHandling:Cprj` (pas de JWT).
 - `RequestTracing` ne sert à rien hors HTTP.
@@ -56,6 +53,8 @@ public class MonBatch(IExceptionReporter reporter, ILogger<MonBatch> logger) : B
 
 `ExceptionHandling:RequestTracing:Enabled = true` enregistre, pour les requêtes GET, POST, PUT et DELETE : méthode, chemin, query string, corps de la requête, statut, corps de la réponse, durée, utilisateur, cprj et TraceId.
 
+- **Erreurs 500 : toujours enregistrées.** Même avec `Enabled = false`, une requête qui se termine en erreur 500 est écrite dans `RequestTracing:File` / `RequestTracing:Database` (méthode, chemin, query string, corps de la requête, statut, durée, utilisateur, TraceId). Le corps de la réponse n'est enregistré que lorsque le traçage est activé. Pour ne garder que les erreurs 500 dans la table, laisser `Enabled = false` et activer `Database`.
+- **`IncludedPaths`** : liste de débuts de chemin. Vide = toutes les requêtes sont tracées ; sinon seules celles dont le chemin commence par une valeur de la liste (`["/test", "/catalogue"]`). `ExcludedPaths` reste prioritaire. Aucun effet sur les erreurs 500.
 - **Fichier dédié** (`RequestTracing:File`, par défaut `logs/requests-.log`, JSON) : séparé des logs d'exceptions.
 - **Table dédiée** (`RequestTracing:Database`, par défaut `dbo.RequestLogs`, désactivée) : même base et même chaîne de connexion que `ExceptionHandling:Database`.
 - Les valeurs de `password`, `token`, `secret`, `authorization`, `apiKey`… (plus `MaskedFields`) sont remplacées par `***`. L'en-tête `Authorization` n'est jamais enregistré.
